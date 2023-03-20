@@ -22,6 +22,10 @@ public class HelperFunctionsCrypto
     /*
     class contains static functions for cryptographic operations
     -> use char arrays instead of strings since they are mutable -> memory can be overwritten
+
+    References:
+    https://www.baeldung.com/java-password-hashing
+    https://code.tutsplus.com/de/tutorials/storing-data-securely-on-android--cms-30558
      */
 
     public static HashMap<String, byte[]> encryptBytes(byte[] plainTextBytes, char[] clearPassword)
