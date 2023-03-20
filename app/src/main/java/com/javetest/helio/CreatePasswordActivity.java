@@ -4,13 +4,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.EditText;
 import android.content.Intent;
 import android.widget.Button;
 import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 import androidx.security.crypto.MasterKeys;
+
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -46,32 +50,23 @@ public class CreatePasswordActivity extends AppCompatActivity {
                 }
                 else
                 {
+                    //TODO checken ob die passwörter die geforderte sicherheit aufweisen? Länge des numerischen Passwortes?
+                    //TODO ist das der beste weg alles einzeln mit exceptions abzufangen?
                     if (p1.equals(p2)) // update the new password in the preferences
                     {
                         // the two passwords are equal -> generate shared preferences and store password
-                        String masterKeyAlias = null;
-                        try {
-                            masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        //String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
-                        EncryptedSharedPreferences settings = null;
-                        try
-                        {
-                            settings = (EncryptedSharedPreferences) EncryptedSharedPreferences.create(
-                                    "PREFS",
-                                    masterKeyAlias,
-                                    getApplicationContext(),
-                                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-                            );
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
+                        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
 
+                        // now hash the password and save it
+                        HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(p1.toCharArray());
+
+                        //serialize hashed password object as json and store it in settings
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString("pw", p1);
+
+                        Gson gson = new Gson();
+                        String json = gson.toJson(hashedPasswordInfo);
+                        editor.putString("hashedPWInfo", json);
                         editor.apply();
 
                         //start the main application

@@ -2,8 +2,10 @@ package com.javetest.helio;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 import androidx.security.crypto.MasterKeys;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Looper;
 import android.content.Intent;
@@ -13,35 +15,18 @@ import androidx.security.crypto.MasterKeys;
 
 public class FirstAcessDecisionAcitivty extends AppCompatActivity {
 
-    String password; //global declaration (within class)
+    String json; //global declaration (within class)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first_acess_decision_acitivty);
 
-        String masterKeyAlias = null;
-        try {
-            masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
-        EncryptedSharedPreferences settings = null;
-        try
-        {
-            settings = (EncryptedSharedPreferences) EncryptedSharedPreferences.create(
-                    "PREFS",
-                    masterKeyAlias,
-                    getApplicationContext(),
-                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        //load SharedPreferences from memory and check if it already contains a password, otherwise define one
+        MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
+        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
 
-        password = settings.getString("pw",""); //if preference does not exist, return ""
+        json = settings.getString("hashedPWInfo",""); //if preference does not exist, return ""
 
         //create runnable and delay execution with handler (warum genau?)
         Runnable r = new Runnable()
@@ -49,7 +34,7 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
             @Override
             public void run()
             {
-                if(password.equals("")) //first registration in application -> require user password input
+                if(json.equals("")) //first registration in application -> require user password input
                 {
                     Intent intent = new Intent(getApplicationContext(), CreatePasswordActivity.class); //create intent to start CreatePasswordActivity
                     startActivity(intent); //start CreatePasswordActivity
