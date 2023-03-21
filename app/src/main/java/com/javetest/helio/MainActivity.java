@@ -30,6 +30,16 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+        buttonCompose.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(getApplicationContext(), ComposeMessageActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }
 

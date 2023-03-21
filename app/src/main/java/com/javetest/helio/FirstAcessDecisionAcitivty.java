@@ -13,6 +13,8 @@ import android.os.Handler;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
+import java.security.KeyPair;
+
 public class FirstAcessDecisionAcitivty extends AppCompatActivity {
 
     String json; //global declaration (within class)

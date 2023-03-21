@@ -2,6 +2,8 @@ package com.javetest.helio;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -24,17 +26,17 @@ public class ScanActivity extends AppCompatActivity {
         mCodeScanner = new CodeScanner(this, scannerView);
 
         //override the callback that is executed when a QR code is scanned and decoded
-        mCodeScanner.setDecodeCallback(new DecodeCallback() {
+        mCodeScanner.setDecodeCallback(new DecodeCallback()
+        {
             @Override
-            public void onDecoded(@NonNull final Result result) {
-                //this method is called after QR code is decoded -> decoded message in result
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //for now, show the decoded message as pop-up
-                        Toast.makeText(ScanActivity.this, result.getText(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            public void onDecoded(@NonNull final Result result)
+            {
+                //this method is called after QR code is decoded -> decoded message contained in result
+                //start the KeyListActivity so that the user can chose the right key
+                Intent intent = new Intent(ScanActivity.this, DecryptEnterPasswordActivity.class);
+                intent.putExtra("encryptedMessage", result.getText());
+                startActivity(intent);
+                ScanActivity.this.finish();
             }
         });
         scannerView.setOnClickListener(new View.OnClickListener() {

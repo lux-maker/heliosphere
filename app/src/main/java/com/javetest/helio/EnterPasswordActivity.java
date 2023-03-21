@@ -30,8 +30,6 @@ public class EnterPasswordActivity extends AppCompatActivity {
         enteredPW = (EditText) findViewById(R.id.password);
         button = (Button) findViewById(R.id.button2);
 
-
-
         button.setOnClickListener(new View.OnClickListener()
         {
             @Override

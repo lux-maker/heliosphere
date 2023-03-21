@@ -3,9 +3,15 @@ package com.javetest.helio;
 
 import android.util.Log;
 
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Base64;
@@ -32,7 +38,7 @@ public class HelperFunctionsCrypto
     {
         HashMap<String, byte[]> map = new HashMap<String, byte[]>();
 
-        try //handle all kinds of exceptions TODO sollte hier auf einige exceptions speziell eingegangen werden?
+        try //handle all kinds of exceptions
         {
             // hash password and generate salt
             HashedPasswordInfo hashedPasswordInfo = hashPassword(clearPassword);
@@ -60,7 +66,7 @@ public class HelperFunctionsCrypto
         return map;
     }
 
-    private static byte[] decryptData(HashMap<String, byte[]> map, char[] clearPassword)
+    public static byte[] decryptBytes(HashMap<String, byte[]> map, char[] clearPassword)
     {
         byte[] decrypted = null; //forward declaration to return outside try() block
         try
@@ -134,5 +140,53 @@ public class HelperFunctionsCrypto
         }
 
         return salt;
+    }
+
+    public static KeyPair generateRSAKeyPair()
+    {
+        KeyPair pair = null;
+        try
+        {
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(2048);
+            pair = generator.generateKeyPair();
+        }
+        catch (Exception e)
+        {
+            Log.e("HelperFunctionsCrypto", "KeyPair generation exception", e);
+        }
+        return pair;
+    }
+
+    public static byte[] encryptWithRSA(byte[] clearMessage, PublicKey publicKey)
+    {
+        byte[] encryptedMessageBytes = null;
+        try
+        {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE,  publicKey);
+            encryptedMessageBytes = cipher.doFinal(clearMessage);
+        }
+        catch(Exception e)
+        {
+            Log.e("HelperFunctionsCrypto", "RSA encryption failure", e);
+        }
+        return encryptedMessageBytes;
+    }
+
+    public static byte[] decryptWithRSA(byte[] encryptedMessage, PrivateKey privateKey)
+    {
+        byte[] clearMessageBytes = null;
+        try
+        {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            clearMessageBytes = cipher.doFinal(encryptedMessage);
+        }
+        catch(Exception e)
+        {
+            Log.e("HelperFunctionsCrypto", "RSA decryption failure", e);
+        }
+        return clearMessageBytes;
     }
 }

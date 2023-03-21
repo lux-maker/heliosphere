@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -18,6 +19,8 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.util.HashMap;
 
 public class CreatePasswordActivity extends AppCompatActivity {
 
@@ -57,16 +60,25 @@ public class CreatePasswordActivity extends AppCompatActivity {
                         // the two passwords are equal -> generate shared preferences and store password
                         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
                         SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+                        SharedPreferences.Editor editor = settings.edit();
 
                         // now hash the password and save it
                         HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(p1.toCharArray());
 
                         //serialize hashed password object as json and store it in settings
-                        SharedPreferences.Editor editor = settings.edit();
-
                         Gson gson = new Gson();
                         String json = gson.toJson(hashedPasswordInfo);
                         editor.putString("hashedPWInfo", json);
+
+                        //generate RSA key pair, encrypt the private one and save both
+                        KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
+                        HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), p1.toCharArray());
+
+                        //serialize encrypted/encoded keys and store it in settings as well
+                        String jsonPrivate = gson.toJson(privateKeyEncrypted);
+                        editor.putString("RSAPrivate", jsonPrivate);
+                        editor.putString("RSAPublic", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
+
                         editor.apply();
 
                         //start the main application

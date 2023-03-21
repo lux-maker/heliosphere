@@ -18,6 +18,15 @@
         android:theme="@style/Theme.Helio"
         tools:targetApi="31">
         <activity
+            android:name=".ComposeMessageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DecryptEnterPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".KeyListActivity"
+            android:exported="false" />
+        <activity
             android:name=".ScanActivity"
             android:exported="false" />
         <activity
