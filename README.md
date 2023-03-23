@@ -1,6 +1,7 @@
 # heliosphere
 
 TODOS:
+
 * ~~think about how keys/hashMaps can be stored effectively -> Class HashedPasswordInfo?~~
 * add key password definition at first start
 * take care of todos in existing code
@@ -17,3 +18,4 @@ Implementierungsideen:
 * "Selbstzerstörungsmechanismus" bei mehrmaliger falscher Passworteingabe
 * erneute*r generierung und Austausch der Schlüssel nach bestimmter Zeit / bestimmter Anzahl an gesendeten Nachrihten
 * Signature für Nachrichten und Schlüssel ( -> Recherche)
+* check bei app start einbauen ob irgendeine art der kommunikation möglich ist (wifi, bluetooth, usb, nfc) -> wenn ja, dann alles löschen und beleidigungn anzeigen
