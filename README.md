@@ -30,11 +30,10 @@ Workflow:
       -> Button 3: Scan foreign public key
       -> Button 4: Show Own Public key
 
-Speicherung von keys:
-* Recherche! Was sind vorhergesehen Workflows? Wie kann sicher gestellt werden, dass von nirgendwo außerhalb der App auf die Speicherorte der Schlüssel zugegriffen werden kann? 
-
-Footprint von public keys? 
-Über manuellen Abgleich oder über Signatur? 
+Schlüsselprobleme: 
+* Speicherung von keys:echerche! Was sind vorhergesehen Workflows? Wie kann sicher gestellt werden, dass von nirgendwo außerhalb der App auf die Speicherorte der Schlüssel zugegriffen werden kann? 
+* Footprint von public keys? 
+* Über manuellen Abgleich oder über Signatur? 
 -> eventuell erst für spätere Visionen
 Für jetzige Version: Möglichkeit, eigenen public key und public key von anderen Personen im Klartext anzeigen zu können. 
 
