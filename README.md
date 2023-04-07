@@ -1,6 +1,6 @@
 # heliosphere
 
-###TODOS:
+### TODOS:
 
 * ~~think about how keys/hashMaps can be stored effectively -> Class HashedPasswordInfo?~~
 * add key password definition at first start
@@ -42,9 +42,9 @@ Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen we
 * Überlegen, wie die Anzahl der enthaltenen QR Codes kodiert wird
 
 Variante 1.0: 
-* Jedem chiffrat pro QR Code wird eine zweistellige Nummer vorangestellt. (PositionNumber)
+* Jedem chiffrat wird pro QR Code  eine zweistellige Nummer vorangestellt. (PositionNumber)
 * Diese Nummer enhält infos über Gesammtanzahl und der jeweiligen Position des einzelnen QR-Codes 
-| PositionNumber| absolute Anzahl(P), Position (p) |
+| PositionNumber | absolute Anzahl(P), Position (p) |
 | ------------- | ------------- |
 | 01  | 1,1  |
 | 02  | 2,1  |
@@ -71,3 +71,4 @@ public static int[] getQRPosition(int PositionNumber) {
 	
 }
 ```
+* Das ist in meinen Augen die platzärmste Methode. 
