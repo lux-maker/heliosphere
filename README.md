@@ -44,6 +44,7 @@ Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen we
 Variante 1.0: 
 * Jedem chiffrat wird pro QR Code  eine zweistellige Nummer vorangestellt. (PositionNumber)
 * Diese Nummer enhält infos über Gesammtanzahl und der jeweiligen Position des einzelnen QR-Codes 
+
 | PositionNumber | absolute Anzahl(P), Position (p) |
 | ------------- | ------------- |
 | 01  | 1,1  |
@@ -57,6 +58,7 @@ Variante 1.0:
 | ... | ...  |
 | 89  | 12,11  |
 | 90  | 12,12  |
+
 * Damit sind pro Nachricht max 12 QR Codes möglich. Ich denke das reicht. 
 * verarbeitet kann das ganz relativ fix: 
 ```
