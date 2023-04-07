@@ -43,7 +43,7 @@ Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen we
 
 Variante 1.0: 
 * Jedem chiffrat wird pro QR Code  eine zweistellige Nummer vorangestellt. (PositionNumber)
-* Diese Nummer enhält infos über Gesammtanzahl und der jeweiligen Position des einzelnen QR-Codes 
+* Diese Nummer enhält infos über Gesammtanzahl und die jeweiligen Position des einzelnen QR-Codes 
 
 | PositionNumber | absolute Anzahl(P), Position (p) |
 | ------------- | ------------- |
