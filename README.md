@@ -61,7 +61,7 @@ Variante 1.0:
 | 91  | 13,13  |
 
 * Damit sind pro Nachricht max 13 QR Codes möglich. Ich denke das reicht. 
-* verarbeitet kann das ganz relativ fix: 
+* Iterativer Berechnungsweg:
 ```
 public static int[] getQRPosition(int PositionNumber) {
   	int rest = 0;
@@ -74,10 +74,8 @@ public static int[] getQRPosition(int PositionNumber) {
 	
 }
 ```
-* Das ist in meinen Augen die platzärmste Methode. 
 
-Analytische Funktion zur Berechnung der Positionsnummer:
-
+* analytischer Berechnungsweg:
 ```
 public static int[] getQRPosition(int PositionNumber) {
 	// gaußsche Summenformel: 1 + 2 + 3 + ... + n = ((n+1)*n) / 2 = PNfull
