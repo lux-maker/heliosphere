@@ -84,7 +84,7 @@ public static int[] getQRPosition(int PositionNumber) {
 	// n ist die volle Reihe und P = ceil(n)
 	// p ist die differenz zwischen PositionsNummer und der positionsnummer der niedrigeren vollen "Reihe"
 	
-	int P = ceil(-0.5 + sqrt(0.25 + PNfull * 2)); //(paule) muss hier nicht PositionNumber anstelle von PNfull verwendet werden? 
+	int P = ceil(-0.5 + sqrt(0.25 + PositionNumber * 2)); //(paule) muss hier nicht PositionNumber anstelle von PNfull verwendet werden? (lux) jap
 	int p = (((P+1)*P) / 2) - PositionNumber;
 	
 	return {P,p};
