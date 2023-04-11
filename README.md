@@ -24,6 +24,7 @@
 ### Workflow:
 1. passworteingabe: 
 - -> notwendig für starten der App (wichtig)
+- -> bei erstmaligem öffnen (Passwortvergabe): Sicherheit des eingegeben Passworts checken und ggf. rejecten
 2. Wenn Passwort richtig: Menü
 - -> button 1: Scan Message and Description
 - -> Button 2: Compiler Message and encrypt
