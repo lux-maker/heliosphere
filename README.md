@@ -89,4 +89,13 @@ public static int[] getQRPosition(int PositionNumber) {
 	
 	return {P,p};
 }
+
+public static int computeQRPosition(int[] positionTuple)
+{
+	int P = positionTuple[0];
+	int p = positionTUple[1];
+	
+	return ((P-1)+1)*(P-1) / 2 + p;
+}
+
 ```
