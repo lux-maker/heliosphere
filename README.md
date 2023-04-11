@@ -56,17 +56,18 @@ Variante 1.0:
 | 07  | 4,1  |
 | 08  | 4,2  |
 | ... | ...  |
-| 89  | 12,11  |
-| 90  | 12,12  |
+| 89  | 13,11  |
+| 90  | 13,12  |
+| 91  | 13,13  |
 
-* Damit sind pro Nachricht max 12 QR Codes möglich. Ich denke das reicht. 
+* Damit sind pro Nachricht max 13 QR Codes möglich. Ich denke das reicht. 
 * verarbeitet kann das ganz relativ fix: 
 ```
 public static int[] getQRPosition(int PositionNumber) {
   	int rest = 0;
 	int P = 0;
         for(;  PositionNumber >= (rest +1) ; P++){
-		rest= rest + P;
+		rest= rest + P; // (lux) ich denke hier müsste das abbruchkriterium leicht verändert werden damit die letzte erhöhung von rest nicht statt findet, oder analytischer prozess siehe unten?
         } 
 	int[] QRPostion = {P,PositionNumber - rest}; //[absolute Anzahl(P), Position (p)]
 	return QRPosition;
@@ -74,3 +75,19 @@ public static int[] getQRPosition(int PositionNumber) {
 }
 ```
 * Das ist in meinen Augen die platzärmste Methode. 
+
+Analytische Funktion zur Berechnung der Positionsnummer:
+
+```
+public static int[] getQRPosition(int PositionNumber) {
+	// gaußsche Summenformel: 1 + 2 + 3 + ... + n = ((n+1)*n) / 2 = PNfull
+	// PNfull ist die Positionsnummer jeweils bei vollen "Reihen"
+	// n ist die volle Reihe und P = ceil(n)
+	// p ist die differenz zwischen PositionsNummer und der positionsnummer der niedrigeren vollen "Reihe"
+	
+	int P = ceil(-0.5 + sqrt(0.25 + PNfull * 2));
+	int p = (((P+1)*P) / 2) - PositionsNummer;
+	
+	return {P,p};
+}
+```
