@@ -55,30 +55,44 @@ public class KeyListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         clearMessage = intent.getStringExtra("clearMessage");
 
-        //######################################### only for debugging
-        //load the own public RSA key into the list
+        //load public keys from shared preferences
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
         SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
 
-        try {
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(settings.getString("RSAPublic", "")));
-            publicKey = keyFactory.generatePublic(publicKeySpec);
-        } catch (Exception e) {
-            Log.e("DecryptEnterPasswordActivity", "RSA key decoding failure", e);
+        //load the public key map, an instance that maps key names to public keys
+        String publicKeyMapJson = settings.getString("publicKeyMap",""); //if preference does not exist, return ""
+
+        //check if keymap contains any keys
+        if (publicKeyMapJson.equals(""))
+        {
+            // no public keys exists -> since the own public key is added in CreatePasswordActivity, this can actually never happen if everything goes as planned
+            //TODO how to handle this situation?
         }
-        //######################################### only for debugging END
-
-        String[] keys = {"own key", "fake key name 1", "fake key name 2", "fake key name 3"}; //TODO load existing keys from memory
-
+        //if public key map exists in shared preferences, parse the string to a HashMap object
+        Gson gson = new Gson();
+        HashMap<String, String> publicKeyMap = gson.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType());
+        //add all keys from the hashmap to a string array and include the resulting array in the ArrayAdapter to display it on screen
+        String[] keys = publicKeyMap.keySet().toArray(new String[0]);
         ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, keys);
+
 
         listView.setAdapter(listAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id) {
                 Log.i("KeyListActivity", "test");
-                // for now just use the own public key no matter what the selection actually was //TODO add key selection
+                // get the name of the key that was selected
+                String itemName = listView.getItemAtPosition(position).toString();
+                String publicKeyString = publicKeyMap.get(itemName);
+
+                try {
+                    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                    EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(publicKeyString));
+                    publicKey = keyFactory.generatePublic(publicKeySpec);
+                } catch (Exception e) {
+                    Log.e("Keylistactivity", "RSA key decoding failure", e);
+                }
+
                 byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(clearMessage.getBytes(StandardCharsets.UTF_8), publicKey);
                 //byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(clearMessage), publicKey);
 

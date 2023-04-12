@@ -74,6 +74,13 @@ public class CreatePasswordActivity extends AppCompatActivity {
                         KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
                         HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), p1.toCharArray());
 
+                        // instantiate new hasMap to store the public keys that are potentially scanned by the user later
+                        HashMap<String,String> publicKeyMap = new HashMap<String,String>();
+                        // store the own public key in it by default
+                        publicKeyMap.put("own key", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
+                        String publicKeyMapJson = gson.toJson(publicKeyMap);
+                        editor.putString("publicKeyMap", publicKeyMapJson);
+
                         //serialize encrypted/encoded keys and store it in settings as well
                         String jsonPrivate = gson.toJson(privateKeyEncrypted);
                         editor.putString("RSAPrivate", jsonPrivate);
