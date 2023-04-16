@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class HashedPasswordInfo
 {
 
-    HashedPasswordInfo(byte[] salt, SecretKeySpec secretKeySpec) //Constructor
+    HashedPasswordInfo( byte[] salt,  SecretKeySpec secretKeySpec) //Constructor
     {
         salt_ = salt;
         secretKeySpec_ = secretKeySpec;

@@ -17,7 +17,9 @@ import androidx.security.crypto.MasterKeys;
 
 import com.google.gson.Gson;
 
+
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.util.HashMap;
@@ -75,10 +77,17 @@ public class CreatePasswordActivity extends AppCompatActivity {
                         // now hash the password and save it
                         HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(p1.toCharArray());
 
+
                         //serialize hashed password object as json and store it in settings
+                        //Version mit Gson //JACKSON braucht keine Umwege um das secretKeySpec Okejt zu json zu machen, wandelt aber die Arrays[] um und bekommt dann Probleme bei json -> Objekt
                         Gson gson = new Gson();
-                        String json = gson.toJson(hashedPasswordInfo);
-                        editor.putString("hashedPWInfo", json); //schreibe das Hash-Wert des PWs unter hashedPWInfo in dei Datei AccessKey in den sharedPreferences
+
+                        //wir müssen alles in kleine Teile aufteilen, weil Gson sont bei gson.toJson(hashedPasswordInfo) nur für den Salt die Sachen richtig einließt, bei SecretKeySpec würde im json nur "secretKeySpec_":{} stehen, dadruch könnte das PW später nicht abgeglichen werden.
+                        String json_salt = gson.toJson(hashedPasswordInfo.getSalt()); //enhält den salt
+                        String json_keySpec_key = gson.toJson(hashedPasswordInfo.getSecretKeySpec().getEncoded()); //enhält den Hash des keys
+                        String json_keySpec_alogrithm = gson.toJson(hashedPasswordInfo.getSecretKeySpec().getAlgorithm()); //enhält das Verschlüsselungsverfahren "algorithm": "AES"
+                        String json = json_salt+";"+json_keySpec_key+";"+json_keySpec_alogrithm; //setze die Strings mit ; zusammen, danach können wir sie durch ";" später wieder trennen.
+                        editor.putString("hashedPWInfo", json); //schreibe das Hash-Wert des PWs unter hashedPWInfo in die Datei AccessKey in den sharedPreferences
 
                         //generate RSA key pair, encrypt the private one and save both
                         KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
