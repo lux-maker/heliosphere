@@ -15,7 +15,14 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-
+/**
+ * generelle Infos:
+ *
+ * diese Activity wird einzig nur in der FirstAcessDecision Activity gestartet, wenn dort festgestellt wurde, dass die App nicht das erste Mal geöffnet wird (=ein App-PW hinterlegt ist)
+ * und dieses nun Überprüft werden soll.
+ * Dazu wird der Hash-Wert des APP-PWs aus den (encrypted) shared Preferences geladen, sowie der verwendete Salt. Mit dem Salt wird das zu überprüfende PW gehashed und mit dem Hash-Wert des App-PWs verglichen.
+ * Wenn die PWs gleich sind, wird die Main Activity gestartet, ansonsten wird eine Fehlermeldung angezeigt.
+ */
 public class EnterPasswordActivity extends AppCompatActivity {
 
     EditText enteredPW;
@@ -23,17 +30,18 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_enter_password);
+        super.onCreate(savedInstanceState); //created by default
+        setContentView(R.layout.activity_enter_password); //created by default
 
         // assign view objects to code variables
-        enteredPW = (EditText) findViewById(R.id.password);
-        button = (Button) findViewById(R.id.button2);
+        enteredPW = (EditText) findViewById(R.id.password); //objekt, was sich auf das erste Textfeld im GUI bezieht, darüber steht "Enter new Password", inputType="numberPassword"
+        button = (Button) findViewById(R.id.button2); //objekt, was sich auf den "ENTER" button aus dem GUI bezieht
 
+        //implement a Callable for a "ENTER" button click
         button.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
+            public void onClick(View view) //when "ENTER" button clicked: speichere die Eingabe, lade den Hash-Wert und den Salt des APP-PWs, hashe das eingegebene PW mit dem geladenen Salt und vergleiche die Hash-Werte. Wenn gleich, dann starte Main Activity sonst zeige eine Fehlermeldung an.
             {
                 String p = enteredPW.getText().toString();
 
@@ -44,7 +52,7 @@ public class EnterPasswordActivity extends AppCompatActivity {
                 //reorganize the hashed password from memory
                 Gson gson = new Gson();
                 String json = settings.getString("hashedPWInfo", ""); //TODO sichergehen dass an dieser stelle niemals "" zurückgegeben wird
-                HashedPasswordInfo trueHashedPasswordInfo = gson.fromJson(json, HashedPasswordInfo.class);
+                HashedPasswordInfo trueHashedPasswordInfo = gson.fromJson(json, HashedPasswordInfo.class); //Objekt enthält Hash-Wert des App-PWs und den Salt
 
                 //hash the newly entered password by reusing the salt from the trueHashedPassword
                 HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(trueHashedPasswordInfo.getSalt(), p.toCharArray());

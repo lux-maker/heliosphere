@@ -33,6 +33,15 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
+/**
+ * generelle Infos:
+ * Die Activity wird von der Scan Activity gestartet. Die Scan Actvity hat den QR-Code bereits eingescannt und den Inhalt mit übergeben.
+ * Nun wird nach dem App-PW gefragt und die Hash-Werte geladen und verglichen. Außerdem wird noch der private key aus den shared Preferences geladen.
+ * Wenn das PW richtig ist, wird dieser entschlüsselt und damit die Nachricht entschlüsselt.
+ * Diese wird dann in einem Textfeld ausgegeben.
+ * Zwischendurch gibt es einen Wechsel beim GUI: die PW-Abfrage wird im activity_decrypt_enter_password.xml angezeigt, die Nachricht im encodedmessage_dialog.xml
+ * Wird der Dialog durch den "CLOSE CODE AND MESSAGE" button geschlossen, wird die Main Activity wieder gestartet.
+ */
 public class DecryptEnterPasswordActivity extends AppCompatActivity {
     EditText enteredPW;
     Button button;
@@ -47,11 +56,12 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_decrypt_enter_password);
+        super.onCreate(savedInstanceState); //created by default
+        setContentView(R.layout.activity_decrypt_enter_password); //created by default
 
-        enteredPW = (EditText) findViewById(R.id.password);
-        button = (Button) findViewById(R.id.button2);
+        // assign view objects to code variables
+        enteredPW = (EditText) findViewById(R.id.password); //objekt, was sich auf das Textfeld im GUI bezieht, darüber steht "Enter password..", inputType="numberPassword"
+        button = (Button) findViewById(R.id.button2); //objekt, was sich auf den "ENTER" button im GUI bezieht.
 
         //run the loading of passwords on a different thread to preserve frame rate
         new Thread(new Runnable() {
@@ -74,10 +84,11 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
             }
         }).start();
 
+        //implement a Callable for "ENTER" button click
         button.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
+            public void onClick(View view) //when clicked: hash pw, vergleiche Hash-Wert mit App-PW-Hash-Wert. Richtiges PW: entschlüsseln der Nachricht und übergeben an showCustomDialog()
             {
                 //hash entered password
                 String p = enteredPW.getText().toString();
@@ -93,7 +104,7 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                     try
                     {
                         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(HelperFunctionsCrypto.decryptBytes(privateKeyEncrypted, p.toCharArray()));
+                        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(HelperFunctionsCrypto.decryptBytes(privateKeyEncrypted, p.toCharArray())); //zunächst muss der privtae key mit Base64 entschlüsselt werden
                         privateKey = keyFactory.generatePrivate(privateKeySpec);
                     }
                     catch(Exception e)
@@ -114,30 +125,34 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
         });
     }
 
+    //Anzeigen der entschlüsselten Nachricht
+    //Achtung das GUI wechselt: activity_decrypt_enter_password.xml -> encodedmessage_dialog.xml
     void showCustomDialog(String clearMessage)
     {
         Log.i("KeyListActivity", clearMessage);
 
+        //erzeuge neues Dialog-Fenster (Objekt):
         dialog = new Dialog(DecryptEnterPasswordActivity.this);
-        //We have added a title in the custom layout. So let's disable the default title.
+        //We have added a title in the custom layout. So let's disable the default title:
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         //The user will be able to cancel the dialog bu clicking anywhere outside the dialog.
         dialog.setCancelable(true);
         //Mention the name of the layout of your custom dialog.
-        dialog.setContentView(R.layout.encodedmessage_dialog);
+        dialog.setContentView(R.layout.encodedmessage_dialog); //bezieht sich auf encodedmessage_dialog.xml
 
         //Initializing the views of the dialog.
-        final TextView textView = dialog.findViewById(R.id.message_display);
-        Button closeButton = dialog.findViewById(R.id.close_button);
+        final TextView textView = dialog.findViewById(R.id.message_display); // Objekt bezieht sich auf TextView im GUI
+        Button closeButton = dialog.findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
 
         textView.setText(clearMessage);
 
         dialog.show();
 
+        //implement a Callable for a "CLOSE CODE AND MESSAGE" button click
         closeButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
+            public void onClick(View view) //when clicked: starte wieder die Main Activity
             {
                 Intent intent = new Intent(DecryptEnterPasswordActivity.this, MainActivity.class);
                 dialog.dismiss();

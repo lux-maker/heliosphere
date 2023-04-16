@@ -22,6 +22,16 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.util.HashMap;
 
+/**
+ * generelle Infos:
+ *
+ * diese Activity wird einzig nur in der FirstAcessDecision Activity gestartet, wenn dort festgestellt wurde, dass die App das erste Mal geöffnet wird (=noch kein PW hinterlegt ist)
+ * die Activity warte auf den Click auf den "CONFIRM" Button. Dann werde die beiden eingegeben Texte (PW + PW wiederholen) verglichen und der Hash-Wert des PWs in den shared Preferences abgespeichert, wenn die Texte gleich sind.
+ * Außerdem wird ein RSA key erzeugt und eine PublicKeyMap, wo alle öffentlichen RSA-Schlüssel gesammelt werden. Dort wird auch der eigene öffentliche Schlüssel hinzugefügt.
+ * Der private RSA-key wird mit dem neuen App-PW verschlüsselt und zusammen mit dem mit Base64 verschlüsselen public RSA key und der PublicKeyMap in die shared Preferences gespeichert, die nochmal mit dem Masterkey gesichert sind.
+ * Am Ende ruft wird die Main Activity aufgerufen.
+ */
+
 public class CreatePasswordActivity extends AppCompatActivity {
 
     private EditText password, passwordRepeat;
@@ -29,19 +39,19 @@ public class CreatePasswordActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_password);
+        super.onCreate(savedInstanceState); //created by default
+        setContentView(R.layout.activity_create_password); //created by default
 
         // assign view objects to code variables
-        password = (EditText) findViewById(R.id.password);
-        passwordRepeat = (EditText) findViewById(R.id.passwordRepeat);
-        button = (Button) findViewById(R.id.button);
+        password = (EditText) findViewById(R.id.password); //objekt, was sich auf das erste Textfeld im GUI bezieht, darüber steht "Enter new Password", inputType="numberPassword"
+        passwordRepeat = (EditText) findViewById(R.id.passwordRepeat); //objekt, was sich auf das zweite Textfeld im GUI bezieht, darüber steht "Repeat Password", inputType="numberPassword"
+        button = (Button) findViewById(R.id.button); //objekt, was sich auf den "CONFIRM" button aus dem GUI bezieht
 
-        //implement a Callable for a button click
+        //implement a Callable for a "CONFIRM" button click
         button.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
+            public void onClick(View view) //when "CONFIRM" button clicked: 1. Schaue, ob etwas eingeben wurde 2.
             {
                 String p1 = password.getText().toString();
                 String p2 = passwordRepeat.getText().toString();
@@ -68,23 +78,28 @@ public class CreatePasswordActivity extends AppCompatActivity {
                         //serialize hashed password object as json and store it in settings
                         Gson gson = new Gson();
                         String json = gson.toJson(hashedPasswordInfo);
-                        editor.putString("hashedPWInfo", json);
+                        editor.putString("hashedPWInfo", json); //schreibe das Hash-Wert des PWs unter hashedPWInfo in dei Datei AccessKey in den sharedPreferences
 
                         //generate RSA key pair, encrypt the private one and save both
                         KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
-                        HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), p1.toCharArray());
+                        HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), p1.toCharArray()); //enthält verschlüsselten private key (+salt +iv), verschlüsselt mit dem neuen App-PW
 
                         // instantiate new hasMap to store the public keys that are potentially scanned by the user later
                         HashMap<String,String> publicKeyMap = new HashMap<String,String>();
                         // store the own public key in it by default
                         publicKeyMap.put("own key", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
-                        String publicKeyMapJson = gson.toJson(publicKeyMap);
-                        editor.putString("publicKeyMap", publicKeyMapJson);
+                        String publicKeyMapJson = gson.toJson(publicKeyMap); //serialize public key as json
+                        editor.putString("publicKeyMap", publicKeyMapJson); //and store it in settings in publicKeyMap
 
                         //serialize encrypted/encoded keys and store it in settings as well
                         String jsonPrivate = gson.toJson(privateKeyEncrypted);
-                        editor.putString("RSAPrivate", jsonPrivate);
-                        editor.putString("RSAPublic", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
+                        editor.putString("RSAPrivate", jsonPrivate); //privater Schlüssel verschlüsselt mit App-PW
+                        editor.putString("RSAPublic", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded())); //öffentlicher Schlüssel mit Base64 verschlüsselt
+
+                        //Es wurde jetzt zweimal der öffentliche Schlüssel in den shared Preferences gespeichert:
+                        //1. Datei: "publicKeyMap" mit Index: "own key" (verschlüsselt mit Base64)
+                        //2. Datei: "RSAPublic" (verschlüsselt mit Base64)
+
 
                         editor.apply();
 

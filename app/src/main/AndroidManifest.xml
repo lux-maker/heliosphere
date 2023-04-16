@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+generelle Einstellung über die Android APP, wird auch standardmäßig von Android Studio beschrieben.
+https://developer.android.com/guide/topics/manifest/manifest-intro#groovy
+
+android:exported
+    Whether the activity can be launched by components of other applications:
+
+        If "true", the activity is accessible to any app, and is launchable by its exact class name.
+        If "false", the activity can be launched only by components of the same application, applications with the same user ID, or privileged system components. This is the default value when there are no intent filters.
+
+-->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <!--QR-Code Scanner-->
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -17,6 +30,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Helio"
         tools:targetApi="31">
+
+        <!-- An Activity represents a single screen in an app. -->
         <activity
             android:name=".ComposeMessageActivity"
             android:exported="false" />
@@ -31,11 +46,16 @@
             android:exported="false" />
         <activity
             android:name=".FirstAcessDecisionAcitivty"
-            android:exported="true">
+            android:exported="true"> <!-- Klasse kann von Außen aufgerufen werden
+            If an activity in your app includes intent filters, set this element to "true" to let other apps start it -->
             <intent-filter>
+                <!--An Intent is a messaging object you can use to request an action from another app component.
+                The intent-filter specifies the types of intents that an activity, service, or broadcast receiver can respond to.-->
                 <action android:name="android.intent.action.MAIN" />
+                <!-- this activity is the entry point of the application, i.e. when you launch the application, this activity is created. -->
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <!--It is in the LAUNCHER category, meaning it gets an icon in anything that thinks of itself as a “launcher”, such as the home screen -->
             </intent-filter>
         </activity>
         <activity

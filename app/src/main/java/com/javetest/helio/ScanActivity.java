@@ -13,16 +13,23 @@ import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.zxing.Result;
 
+/**
+ * generelle Infos:
+ * Die Activity wird von der Main Activity gestartet, wenn dort auf den Scan and decrypt message button gedrückt wird.
+ * Wenn ein QR-Code eingescannt wurde, wird die DecryptEnterPasswort Activity gestartet und die Nachricht aus dem QR-Code übergeben.
+ *
+ * (paule) wo genau wird der QR-Code reader gestartet?
+ */
 public class ScanActivity extends AppCompatActivity {
 
     private CodeScanner mCodeScanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan);
+        super.onCreate(savedInstanceState); //created by default
+        setContentView(R.layout.activity_scan); //created by default
 
-        CodeScannerView scannerView = findViewById(R.id.scanner_view);
+        CodeScannerView scannerView = findViewById(R.id.scanner_view); //Objekt bezieht sich auf com.budiyev.android.codescanner.CodeScannerView aus dem GUI
         mCodeScanner = new CodeScanner(this, scannerView);
 
         //override the callback that is executed when a QR code is scanned and decoded

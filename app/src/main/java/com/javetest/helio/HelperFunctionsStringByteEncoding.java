@@ -5,6 +5,11 @@ import android.util.Log;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * generelle Infos:
+ * class contains static functions for cryptographic operations with strings
+ */
+
 public class HelperFunctionsStringByteEncoding
 {
     public static byte[] string2byte(String string)

@@ -15,18 +15,31 @@ import androidx.security.crypto.MasterKeys;
 
 import java.security.KeyPair;
 
+/**
+ * generelle Infos:
+ * die Actifity wird beim Starten der App zuallererst aufgerufen
+ * [festgelegt in AndroidManifest.xml:
+ * Ist mit einem Intent-Filter belegt, wodruch nur Intents der Art: <action android:name="android.intent.action.MAIN" />
+ * mit <category android:name="android.intent.category.LAUNCHER" /> die Klasse ansprechen können.
+ * Klicken des App-Icons im Home-Screen des Handys ruft diese FirstAcessDecision Activity auf.]
+ *
+ * Es wird überprüft, ob bereits ein Passwort für die App existiert, also ob sie schonmal geöffnet wurde oder gerade die App das aller erste Mal geöffnet wird.
+ * Ist bereits ein Passwort hinterlegt (= die App wurde schonmal ausgeführt) soll dieses abgefragt werden und die Activity leitet dazu an die EnterPassword Activity weiter.
+ * Ist noch kein Passwort hinterlegt (=die App wird das erste Mal geöffnet) soll ein Passwort angelegt werden und die Activity leitet dazu an die CreatePassword Activity weiter.
+*/
+
 public class FirstAcessDecisionAcitivty extends AppCompatActivity {
 
     String json; //global declaration (within class)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_first_acess_decision_acitivty);
+        super.onCreate(savedInstanceState); //created by default
+        setContentView(R.layout.activity_first_acess_decision_acitivty); //created by default
 
         //load SharedPreferences from memory and check if it already contains a password, otherwise define one
-        MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+        MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext()); //enthält neu erzeugten neuen master key, den es braucht um jetzt gleich die verschlüsselten sharedPreferences zu öffnen //MasterKey: Wrapper-class, references a key that's stored in the Android Keystore //context: in order to access the stored preferences
+        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey"); //enthält unverschlüsselten Inhalt aus der Datei AcessKey in den sharedPreferences.
 
         json = settings.getString("hashedPWInfo",""); //if preference does not exist, return ""
 
@@ -44,8 +57,8 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
                 }
                 else // password was created before, request it
                 {
-                    Intent intent = new Intent(getApplicationContext(), EnterPasswordActivity.class); //create intent to start CreatePasswordActivity
-                    startActivity(intent); //start CreatePasswordActivity
+                    Intent intent = new Intent(getApplicationContext(), EnterPasswordActivity.class); //create intent to start EnterPasswordActivity
+                    startActivity(intent); //start EnterPasswordActivity
                     finish(); //finnish current activity
                 }
             }

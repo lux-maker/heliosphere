@@ -38,6 +38,13 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
+/**
+ * generelle Infos:
+ * Die ComposeMessage Activity übergibt mit dem Parameter "clearMessage" den zuvor eingegeben Text und startet diese Activity hier.
+ * Dann wird eine Liste an gespeicherten public keys geladen. Nach der Auswahl, wird damit der Text verschlüsselt und anschließend als QR-Code angezeigt.
+ * Zwischendurch gibt es einen Wechsel beim GUI: die Liste wird im activity_key_list.xml angezeigt, der QR-Code im qrcode_dialog.xml
+ * Wird der Dialog mit dem QR-Code geschlossen, wird die Main Activity wieder gestartet.
+ */
 public class KeyListActivity extends AppCompatActivity {
 
     ListView listView;
@@ -47,13 +54,14 @@ public class KeyListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_key_list);
+        super.onCreate(savedInstanceState); //created by default
+        setContentView(R.layout.activity_key_list); //created by default
 
-        listView = (ListView) findViewById(R.id.list_view);
+        // assign view objects to code variables
+        listView = (ListView) findViewById(R.id.list_view); //objekt, was sich auf den ListView aus dem GUI bezieht
 
         Intent intent = getIntent();
-        clearMessage = intent.getStringExtra("clearMessage");
+        clearMessage = intent.getStringExtra("clearMessage"); //zuvor eingegebener Text aus CopmposeMessage Activity
 
         //load public keys from shared preferences
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
@@ -70,13 +78,14 @@ public class KeyListActivity extends AppCompatActivity {
         }
         //if public key map exists in shared preferences, parse the string to a HashMap object
         Gson gson = new Gson();
-        HashMap<String, String> publicKeyMap = gson.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType());
+        HashMap<String, String> publicKeyMap = gson.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
         //add all keys from the hashmap to a string array and include the resulting array in the ArrayAdapter to display it on screen
         String[] keys = publicKeyMap.keySet().toArray(new String[0]);
         ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, keys);
+        listView.setAdapter(listAdapter); //Zeigt die public keys in List Viewer in der APP an.
 
 
-        listView.setAdapter(listAdapter);
+        //implement a Callable for the List
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id) {
@@ -86,35 +95,42 @@ public class KeyListActivity extends AppCompatActivity {
                 String publicKeyString = publicKeyMap.get(itemName);
 
                 try {
+                    //entschlüsseln des Hash-Wertes -> herauslesen des öffentlichen Schlüssels
+                    //(paule) verstehe das hier noch nicht komplett. Also was sagt genau jede Zeile dieser nächsten 3?
                     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                    EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(publicKeyString));
+                    EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(publicKeyString)); //public key muss zunächst entschlüsselt werden mit Base64
                     publicKey = keyFactory.generatePublic(publicKeySpec);
                 } catch (Exception e) {
-                    Log.e("Keylistactivity", "RSA key decoding failure", e);
+                    Log.e("Keylistactivity", "RSA key decoding failure", e); //logging, when an error occurs
                 }
 
+                //verschlüsseln der Nachricht mit dem öffentlichen Schlüssel
                 byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(clearMessage.getBytes(StandardCharsets.UTF_8), publicKey);
                 //byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(clearMessage), publicKey);
 
+                //ruft die nächste Methode dieser Klasse auf und übergibt die Verschlüsselte Nachricht
                 showCustomDialog(HelperFunctionsStringByteEncoding.byte2string(encryptedMessageBytes));
             }
         });
     }
 
+    //Zeige verschlüsslte Nachricht in einem QR Code an:
+    //Achtung GUI wird gewechselt: activity_key_list.xml -> qrcode_dialog.xml
     void showCustomDialog(String encryptedMessage) {
         Log.i("KeyListActivity", encryptedMessage);
 
+        //erzeuge neues Dialog-Fenster (Objekt):
         dialog = new Dialog(KeyListActivity.this);
-        //We have added a title in the custom layout. So let's disable the default title.
+        //We have added a title in the custom layout. So let's disable the default title:
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //The user will be able to cancel the dialog bu clicking anywhere outside the dialog.
+        //The user will be able to cancel the dialog bu clicking anywhere outside the dialog:
         dialog.setCancelable(true);
-        //Mention the name of the layout of your custom dialog.
-        dialog.setContentView(R.layout.qrcode_dialog);
+        //Mention the name of the layout of your custom dialog:
+        dialog.setContentView(R.layout.qrcode_dialog); //bezieht sich auf qrcode_dialog.xml
 
         //Initializing the views of the dialog.
-        final ImageView imageCode = dialog.findViewById(R.id.imageCode);
-        Button closeButton = dialog.findViewById(R.id.close_button);
+        final ImageView imageCode = dialog.findViewById(R.id.imageCode); // Objekt bezieht sich auf ImageView im GUI
+        Button closeButton = dialog.findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
 
         //initializing MultiFormatWriter for QR code generation
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
@@ -131,10 +147,11 @@ public class KeyListActivity extends AppCompatActivity {
         }
         dialog.show();
 
+        //implement a Callable for a "CLOSE CODE AND MESSAGE" button click
         closeButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
+            public void onClick(View view) //when clicked: starte wieder die Main Activity
             {
                 Intent intent = new Intent(KeyListActivity.this, MainActivity.class);
                 dialog.dismiss();

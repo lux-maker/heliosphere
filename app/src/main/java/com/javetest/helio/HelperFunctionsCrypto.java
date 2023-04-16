@@ -23,16 +23,18 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/** generelle Infos:
+* class contains static functions for cryptographic operations
+* -> use char arrays instead of strings since they are mutable -> memory can be overwritten
+*
+* References:
+* https://www.baeldung.com/java-password-hashing
+* https://code.tutsplus.com/de/tutorials/storing-data-securely-on-android--cms-30558
+ */
+
 public class HelperFunctionsCrypto
 {
-    /*
-    class contains static functions for cryptographic operations
-    -> use char arrays instead of strings since they are mutable -> memory can be overwritten
 
-    References:
-    https://www.baeldung.com/java-password-hashing
-    https://code.tutsplus.com/de/tutorials/storing-data-securely-on-android--cms-30558
-     */
 
     public static HashMap<String, byte[]> encryptBytes(byte[] plainTextBytes, char[] clearPassword)
     {
@@ -116,7 +118,7 @@ public class HelperFunctionsCrypto
         return hashedPasswordInfo;
     }
 
-    public static HashedPasswordInfo hashPassword(char[] clearPassword)
+    public static HashedPasswordInfo hashPassword(char[] clearPassword) //leitet über den Umweg getSalt() dann zu hashPassword() mit einem neu random erzeugten Salt als Parameter
     {
         return hashPassword(getSalt(), clearPassword);
     }
@@ -136,7 +138,7 @@ public class HelperFunctionsCrypto
         }
         catch(Exception e)
         {
-            Log.e("HelperFunctionsCrypto", "salt generation exception", e);
+            Log.e("HelperFunctionsCrypto", "salt generation exception", e); //logging, when error occurs
         }
 
         return salt;
@@ -153,7 +155,7 @@ public class HelperFunctionsCrypto
         }
         catch (Exception e)
         {
-            Log.e("HelperFunctionsCrypto", "KeyPair generation exception", e);
+            Log.e("HelperFunctionsCrypto", "KeyPair generation exception", e); //logging, when error occurs
         }
         return pair;
     }
@@ -169,7 +171,7 @@ public class HelperFunctionsCrypto
         }
         catch(Exception e)
         {
-            Log.e("HelperFunctionsCrypto", "RSA encryption failure", e);
+            Log.e("HelperFunctionsCrypto", "RSA encryption failure", e); //logging, when error occurs
         }
         return encryptedMessageBytes;
     }
@@ -185,7 +187,7 @@ public class HelperFunctionsCrypto
         }
         catch(Exception e)
         {
-            Log.e("HelperFunctionsCrypto", "RSA decryption failure", e);
+            Log.e("HelperFunctionsCrypto", "RSA decryption failure", e); //logging, when error occurs
         }
         return clearMessageBytes;
     }

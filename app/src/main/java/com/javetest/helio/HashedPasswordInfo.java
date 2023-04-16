@@ -3,13 +3,15 @@ package com.javetest.helio;
 import java.util.Arrays;
 
 import javax.crypto.spec.SecretKeySpec;
-
+/**
+ * generelle Infos:
+ * class to store hashed password information
+ * enhält salt und secretKeySpec
+ */
 public class HashedPasswordInfo
 {
-    /*
-    class to store hashed password information
-     */
-    HashedPasswordInfo(byte[] salt, SecretKeySpec secretKeySpec)
+
+    HashedPasswordInfo(byte[] salt, SecretKeySpec secretKeySpec) //Constructor
     {
         salt_ = salt;
         secretKeySpec_ = secretKeySpec;
@@ -23,7 +25,7 @@ public class HashedPasswordInfo
 
 
     //override the "==" operator
-    boolean equals(HashedPasswordInfo other)
+    boolean equals(HashedPasswordInfo other) //ermöglicht das Abgleichen von dem Has-Wert eines externen PWs mit dem Hash-Wert des in der Klasse gespeicherten PWs, gibt true zurück, wenn PWs gleich
     {
         // perform sanity checks
         if (null == other) return false;
