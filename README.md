@@ -60,8 +60,10 @@ Variante 1.0:
 | 89  | 13,11  |
 | 90  | 13,12  |
 | 91  | 13,13  |
+| 99 | public key |
 
 * Damit sind pro Nachricht max 13 QR Codes möglich. Ich denke das reicht. 
+* Die Zahl 99 ist frei zur Belegung. Ich schlage vor, wir nutzen diese Zahl um anzuzeigen dieser QR-Code enhält einen public key für den Schlüsselaustausch
 * Iterativer Berechnungsweg:
 ```
 public static int[] getQRPosition(int PositionNumber) {
