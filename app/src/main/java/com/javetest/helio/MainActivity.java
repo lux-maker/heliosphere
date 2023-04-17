@@ -53,6 +53,18 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        //implement a Callable for a "Scan key" button click
+        buttonKeyExchange.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) //when click: starte KeyExchangeDecision Activity
+            {
+                Intent intent = new Intent(getApplicationContext(), KeyExchangeDecisionActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }
 

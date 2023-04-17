@@ -36,6 +36,9 @@ android:exported
             android:name=".ComposeMessageActivity"
             android:exported="false" />
         <activity
+            android:name=".KeyExchangeDecisionActivity"
+            android:exported="false" />
+        <activity
             android:name=".DecryptEnterPasswordActivity"
             android:exported="false" />
         <activity

@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -132,12 +133,20 @@ public class KeyListActivity extends AppCompatActivity {
         final ImageView imageCode = dialog.findViewById(R.id.imageCode); // Objekt bezieht sich auf ImageView im GUI
         Button closeButton = dialog.findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
 
+        //Herausbekommen der Breite des Bildschirms für den QR-Code
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int width = displayMetrics.widthPixels;
+        imageCode.getLayoutParams().width = width;
+        imageCode.getLayoutParams().height = width; //weil quadratisch width = height
+
+
         //initializing MultiFormatWriter for QR code generation
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
         try {
             //BitMatrix class to encode entered text and set Width & Height
-            BitMatrix matrix = multiFormatWriter.encode(encryptedMessage, BarcodeFormat.QR_CODE, 400, 400);
+            BitMatrix matrix = multiFormatWriter.encode(encryptedMessage, BarcodeFormat.QR_CODE, width, width); //weil quadratisch width = height
 
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(matrix);//creating bitmap of code
