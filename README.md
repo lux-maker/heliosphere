@@ -101,3 +101,11 @@ public static int computeQRPosition(int[] positionTuple)
 }
 
 ```
+## Konzept: fatal Error
+* Sicherheitskonzept 
+* Wir können in unserer Codes immer mal Sanity checks einbauen. 
+* Diese können einen fatal Error triggern. 
+* fatal Error löscht / überschreibt alle Daten sofort und schließt die App. 
+* Wir gehen davon aus, dass ein fatal Error nur eintritt, wenn eine Person von außen versucht die App zu manipulieren = Angriff. 
+* Da sich für das offline Handy die externen Faktoren nie ändern werden, können wir uns sicher sein, dass die fatal Errors nur zu besorgniserweckenden Aktionen passieren. 
+
