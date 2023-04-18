@@ -119,7 +119,8 @@ public class KeyListActivity extends AppCompatActivity {
     //Achtung GUI wird gewechselt: activity_key_list.xml -> qrcode_dialog.xml
     void showCustomDialog(String encryptedMessage) {
         Log.i("KeyListActivity", encryptedMessage);
-
+        setContentView(R.layout.qrcode_dialog); //created by default GUI, wo QR-Code und Button angezeigt werden
+        /* Augeklammert, weil wir es nicht mehr nutzen. Dialog -> screen, damit wir den QR Code größer anzeigen können
         //erzeuge neues Dialog-Fenster (Objekt):
         dialog = new Dialog(KeyListActivity.this);
         //We have added a title in the custom layout. So let's disable the default title:
@@ -128,10 +129,10 @@ public class KeyListActivity extends AppCompatActivity {
         dialog.setCancelable(true);
         //Mention the name of the layout of your custom dialog:
         dialog.setContentView(R.layout.qrcode_dialog); //bezieht sich auf qrcode_dialog.xml
-
+        */
         //Initializing the views of the dialog.
-        final ImageView imageCode = dialog.findViewById(R.id.imageCode); // Objekt bezieht sich auf ImageView im GUI
-        Button closeButton = dialog.findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
+        final ImageView imageCode = (ImageView) findViewById(R.id.imageCode); // Objekt bezieht sich auf ImageView im GUI
+        Button closeButton = (Button) findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
 
         //Herausbekommen der Breite des Bildschirms für den QR-Code
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -154,7 +155,7 @@ public class KeyListActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        dialog.show();
+        //dialog.show();
 
         //implement a Callable for a "CLOSE CODE AND MESSAGE" button click
         closeButton.setOnClickListener(new View.OnClickListener()
@@ -163,7 +164,6 @@ public class KeyListActivity extends AppCompatActivity {
             public void onClick(View view) //when clicked: starte wieder die Main Activity
             {
                 Intent intent = new Intent(KeyListActivity.this, MainActivity.class);
-                dialog.dismiss();
                 startActivity(intent);
                 KeyListActivity.this.finish();
             }

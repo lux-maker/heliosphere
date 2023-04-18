@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
  * und dieses nun Überprüft werden soll.
  * Dazu wird der Hash-Wert des APP-PWs aus den (encrypted) shared Preferences geladen, sowie der verwendete Salt. Mit dem Salt wird das zu überprüfende PW gehashed und mit dem Hash-Wert des App-PWs verglichen.
  * Wenn die PWs gleich sind, wird die Main Activity gestartet, ansonsten wird eine Fehlermeldung angezeigt.
- * 
+ *
  */
 public class EnterPasswordActivity extends AppCompatActivity {
 
