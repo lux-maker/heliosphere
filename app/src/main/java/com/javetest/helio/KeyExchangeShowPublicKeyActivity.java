@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -55,6 +56,8 @@ public class KeyExchangeShowPublicKeyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activtiy_key_exchange_showpublickey); //created by default GUI, wo QR-Code und Button angezeigt werden
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //zurückbutton initialisieren
 
         Intent intent = getIntent();
         public_keyname = intent.getStringExtra("keyname"); //übergebener Text, der spezifiziert, welchen public key wir anzeigen sollen.
@@ -146,6 +149,23 @@ public class KeyExchangeShowPublicKeyActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    //Zurückbutton richtung festlegen
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+
+                Intent intent = new Intent(KeyExchangeShowPublicKeyActivity.this, KeyExchangeDecisionActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

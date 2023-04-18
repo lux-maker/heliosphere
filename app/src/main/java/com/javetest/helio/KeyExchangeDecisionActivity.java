@@ -2,10 +2,14 @@ package com.javetest.helio;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Objects;
 
 /**
  * generelle Infos
@@ -16,10 +20,14 @@ public class KeyExchangeDecisionActivity extends AppCompatActivity {
 
     Button buttonshowOwnPublicKey, buttonscanExternalKey;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activity_key_exchange_decision); //created by default
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //zurückbutton initialisieren
+
 
         buttonshowOwnPublicKey = (Button) findViewById(R.id.showOwnPublicKey); //objekt, was sich auf den "show Own Public Key" button aus dem GUI bezieht
         buttonscanExternalKey = (Button) findViewById(R.id.scanExternalKey); //objekt, was sich auf den "scan External Key" button aus dem GUI bezieht
@@ -53,6 +61,23 @@ public class KeyExchangeDecisionActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    //Zurückbutton richtung festlegen
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+
+                Intent intent = new Intent(KeyExchangeDecisionActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

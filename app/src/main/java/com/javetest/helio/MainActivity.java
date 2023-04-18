@@ -14,6 +14,10 @@ import android.widget.Button;
  *
  * Wird der Scan and decrypt message button gedrückt, wird die Scan Activity gestartet.
  * Wird der Compose and Encrypt message button gedrückt, wird die ComposeMessage Activity gestartet.
+
+ * Die Main Activity wird nie mit finish(); geschlossen, auch wenn andere Activitys gestartet werden, damit die zurück Pfeiltaste des Handys immernoch zur Main zurück springt.
+ * Sonst würde die App komplett geschlossen werden. mit android:launchMode="singleTask" in der AndroidManifest.xml wird festgelegt, dass dabei nicht tausende Instanzen der Activity angelegt werden.
+
  * TODO Wird der scan key button gedrückt, passiert gerade noch nichts
  * TODO standardmäßig alle Attribute auf private?! zumindest da wo es möglich ist - ist bisher noch nicht so häufig
  */
@@ -38,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
                 startActivity(intent);
-                finish();
+                //finish(); //Wenn wir hier die Activity beenden, hat die Pfeiltaste bei android nichts mehr, wo sie zurück springen könnte und der Pfeil zurück schließt immer die App
+                // So würde man mit der Pfeil zurück taste immer in der Main Activity landen.
             }
         });
 
@@ -50,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 Intent intent = new Intent(getApplicationContext(), ComposeMessageActivity.class);
                 startActivity(intent);
-                finish();
+                //finish(); //Wenn wir hier die Activity beenden, hat die Pfeiltaste bei android nichts mehr, wo sie zurück springen könnte und der Pfeil zurück schließt immer die App
+                // So würde man mit der Pfeil zurück taste immer in der Main Activity landen.
             }
         });
 
@@ -62,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 Intent intent = new Intent(getApplicationContext(), KeyExchangeDecisionActivity.class);
                 startActivity(intent);
-                finish();
+                //finish(); //Wenn wir hier die Activity beenden, hat die Pfeiltaste bei android nichts mehr, wo sie zurück springen könnte und der Pfeil zurück schließt immer die App
+                // So würde man mit der Pfeil zurück taste immer in der Main Activity landen.
             }
         });
     }

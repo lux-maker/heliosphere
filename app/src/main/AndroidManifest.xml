@@ -72,7 +72,10 @@ android:exported
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask"
+            /> <!-- launchmode legt fest, dass die Activity maximal 1 mal im Stack legen kann. Also wenn ein INTENT nicht geschlossen ist und ein neuer reinkommt,
+            wird dieser keinen neuen erstellen. Dies ist nötig, weil wir bei Main bei der weiterleitung nicht - wie sonst immer - die aktuelle Activity schließen. -->
     </application>
 
 </manifest>
