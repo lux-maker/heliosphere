@@ -52,12 +52,9 @@ public class KeyExchangeDecisionActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) //when click: starte Scan Activity
             {
-                /*
-                Intent intent = new Intent(getApplicationContext(), Activity.class);
+                Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
+                intent.putExtra("redirection", "KeyExchangeSavePublicKeyActivty"); //nach dem Scan des QR codes soll danach mit dem Inhalt die KeyExchangeSavePublicKey Activty aufgerufen werden.
                 startActivity(intent);
-                finish();
-                //beim nächsten mal weitermachen TODO
-                 */
             }
         });
 

@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) //when click: starte Scan Activity
             {
                 Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
+                intent.putExtra("redirection", "DecryptEnterPasswordActivity"); //nach dem Scan des QR codes soll dannach mit dem Inhalt die DecryptEnterPassword Activity aufgerufen werden.
                 startActivity(intent);
                 //finish(); //Wenn wir hier die Activity beenden, hat die Pfeiltaste bei android nichts mehr, wo sie zurück springen könnte und der Pfeil zurück schließt immer die App
                 // So würde man mit der Pfeil zurück taste immer in der Main Activity landen.
