@@ -3,10 +3,10 @@
 ### TODOS:
 
 * ~~think about how keys/hashMaps can be stored effectively -> Class HashedPasswordInfo?~~
-* add key password definition at first start
+* ~~add key password definition at first start~~
 * take care of todos in existing code
 * make sure that all activities can only be accessed via the EnterPasswordActivity (not the case right now when reopening the application after a pause)
-* add "back" buttons
+* ~~add "back" buttons~~
 * Messagesplitting for messages too long to fit into a single QR-code 
 * (-> decode information about message splitting within the first QR-code ("message protocol"))
 * check einbauen der prüft ob verwendetes passwort sicher ist -> entropie
