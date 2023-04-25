@@ -75,8 +75,9 @@ public class KeyListActivity extends AppCompatActivity {
         if (publicKeyMapJson.equals(""))
         {
             // no public keys exists -> since the own public key is added in CreatePasswordActivity, this can actually never happen if everything goes as planned
-            //TODO how to handle this situation?
+            //TODO how to handle this situation? -> catch error and avoid this situation
         }
+
         //if public key map exists in shared preferences, parse the string to a HashMap object
         Gson gson = new Gson();
         HashMap<String, String> publicKeyMap = gson.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
@@ -98,6 +99,8 @@ public class KeyListActivity extends AppCompatActivity {
                 try {
                     //entschlüsseln des Hash-Wertes -> herauslesen des öffentlichen Schlüssels
                     //(paule) verstehe das hier noch nicht komplett. Also was sagt genau jede Zeile dieser nächsten 3?
+                    //(lux) die java libvrary für RSA verschlüsselung arbeitet mit public keys die nach dem x509 schema encoded sind,
+                    // die klasse EncodedKeySpec hält den schlüssel im richtigen format bereit
                     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                     EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(publicKeyString)); //public key muss zunächst entschlüsselt werden mit Base64
                     publicKey = keyFactory.generatePublic(publicKeySpec);
@@ -120,16 +123,11 @@ public class KeyListActivity extends AppCompatActivity {
     void showCustomDialog(String encryptedMessage) {
         Log.i("KeyListActivity", encryptedMessage);
         setContentView(R.layout.qrcode_dialog); //created by default GUI, wo QR-Code und Button angezeigt werden
-        /* Augeklammert, weil wir es nicht mehr nutzen. Dialog -> screen, damit wir den QR Code größer anzeigen können
-        //erzeuge neues Dialog-Fenster (Objekt):
-        dialog = new Dialog(KeyListActivity.this);
-        //We have added a title in the custom layout. So let's disable the default title:
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //The user will be able to cancel the dialog bu clicking anywhere outside the dialog:
-        dialog.setCancelable(true);
-        //Mention the name of the layout of your custom dialog:
-        dialog.setContentView(R.layout.qrcode_dialog); //bezieht sich auf qrcode_dialog.xml
-        */
+
+        // **for debugging only:**
+        //encryptedMessage = new String(new char[1000]).replace('\0', ' ');
+        // ****
+
         //Initializing the views of the dialog.
         final ImageView imageCode = (ImageView) findViewById(R.id.imageCode); // Objekt bezieht sich auf ImageView im GUI
         Button closeButton = (Button) findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
