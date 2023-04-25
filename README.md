@@ -45,7 +45,7 @@ Für jetzige Version: Möglichkeit, eigenen public key und public key von andere
     * Level M: 15% Beschädigung möglich
     * Level L: 7% Beschädigung möglich (Standard Einstellung)
 * maximale Anzahl Elemente (quadrate) ist 177x177
-	-> bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
+    -> bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
 
 ## Scan Protokoll:
 Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen werden und in welche Reihenfolge diese zusammengesetzt sind. 
