@@ -40,10 +40,10 @@ Für jetzige Version: Möglichkeit, eigenen public key und public key von andere
 
 ## QR Code Basisc
 * Der QR Code enthält den kodierten Inhalt zusammen mit Redundanzen und Check-Summen, um die Fehleranfälligkeit zu minimieren
-*	Level H: 30% Beschädigung möglich
-*	Level Q: 25% Beschädigung möglich
-*	Level M: 15% Beschädigung möglich
-*	Level L: 7% Beschädigung möglich (Standard Einstellung)
+    * Level H: 30% Beschädigung möglich
+    * Level Q: 25% Beschädigung möglich
+    * Level M: 15% Beschädigung möglich
+    * Level L: 7% Beschädigung möglich (Standard Einstellung)
 * maximale Anzahl Elemente (quadrate) ist 177x177
 	-> bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
 
