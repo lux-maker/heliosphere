@@ -38,6 +38,22 @@
 -> eventuell erst für spätere Visionen
 Für jetzige Version: Möglichkeit, eigenen public key und public key von anderen Personen im Klartext anzeigen zu können. 
 
+## QR Code Basisc
+* Der QR Code enthält den kodierten Inhalt zusammen mit Redundanzen und Check-Summen, um die Fehleranfälligkeit zu minimieren
+    * Level H: 30% Beschädigung möglich
+    * Level Q: 25% Beschädigung möglich
+    * Level M: 15% Beschädigung möglich
+    * Level L: 7% Beschädigung möglich (Standard Einstellung)
+* maximale Anzahl Elemente (quadrate) ist 177x177
+    * bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
+    * das entspricht ca 2.5 Din A 4 Seiten
+    * 177x177 elemente sehen auf dem bildschirm so aus:
+
+![Alt text](https://github.com/lux-maker/heliosphere/blob/master/Screenshot%20from%202023-04-25%2013-32-25.png?raw=true "Title")
+
+* die nachrichten unserer Nutzer*innen im klartext werden nicht super groß sein, aber verschlüsselung bläht die nachricht auf
+* die beste Länge der Characters pro QR-Code muss noch herausgefunden werden oder bleibt variabel (für jetzt implementierung über Klassen variable)
+ 
 ## Scan Protokoll:
 Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen werden und in welche Reihenfolge diese zusammengesetzt sind. 
 * Überlegen, wie die Anzahl der enthaltenen QR Codes kodiert wird
@@ -101,11 +117,11 @@ public static int computeQRPosition(int[] positionTuple)
 }
 
 ```
-## Konzept: fatal Error
+## Konzept: fatal Error / Critical Vulnerability Detection (CVD)
 * Sicherheitskonzept 
 * Wir können in unserer Codes immer mal Sanity checks einbauen. 
 * Diese können einen fatal Error triggern. 
 * fatal Error löscht / überschreibt alle Daten sofort und schließt die App. 
 * Wir gehen davon aus, dass ein fatal Error nur eintritt, wenn eine Person von außen versucht die App zu manipulieren = Angriff. 
 * Da sich für das offline Handy die externen Faktoren nie ändern werden, können wir uns sicher sein, dass die fatal Errors nur zu besorgniserweckenden Aktionen passieren. 
-
+* sollten wir auf jeden einbauen, würde es aber unter anderm namen laufen lassen (sowas wie "Critical Vulnerability Detection") weil fatal Error meiner Aufassung nach einen Fehler im Programm beschreibt, während das Löschen aller Daten in bestimmten Situationen eine einwandfreie Funktionalität darstellt (ist vielleicht Haarspalterei aber sonst kommen wir eventuell in der kommunikation durcheinander ;) )
