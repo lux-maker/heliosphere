@@ -101,7 +101,7 @@ public static int computeQRPosition(int[] positionTuple)
 }
 
 ```
-## Konzept: fatal Error
+## Konzept: fatal Error / Critical Vulnerability Detection (CVD)
 * Sicherheitskonzept 
 * Wir können in unserer Codes immer mal Sanity checks einbauen. 
 * Diese können einen fatal Error triggern. 
