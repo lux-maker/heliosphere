@@ -59,16 +59,9 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
                     //reorganize the hashed password from memory
                     Gson gson = new Gson();
-                    String json = settings.getString("hashedPWInfo", ""); //TODO sichergehen dass an dieser stelle niemals "" zurückgegeben wird
+                    String string = settings.getString("hashedPWInfo", ""); //TODO sichergehen dass an dieser stelle niemals "" zurückgegeben wird
 
-                    //json wurde in CreatePasswort Activity aufwendig aufgeteilt und verknüpft, dass müssen wir jetzt wieder entdrosseln:
-                    String[] json_split = json.split(";"); //json = "salt ; hash ; algorithm"
-                    byte[] pw_salt = gson.fromJson(json_split[0], byte[].class);
-                    byte[] pw_SecretKeySpec_key = gson.fromJson(json_split[1], byte[].class);
-                    String pw_SecretKeySpec_algorithm = gson.fromJson(json_split[2], String.class);
-                    SecretKeySpec secretKeySpec = new SecretKeySpec(pw_SecretKeySpec_key, pw_SecretKeySpec_algorithm); //erstelle ein secretKeySpec Objekt, damit wir das für die HashedPasswordInfo class verwenden können
-                    HashedPasswordInfo trueHashedPasswordInfo = new HashedPasswordInfo(pw_salt, secretKeySpec); //Objekt enthält Hash-Wert des App-PWs und den Salt
-
+                    HashedPasswordInfo trueHashedPasswordInfo = GsonHelper.String2HashedPWInfo(string);
 
                     //hash the newly entered password by reusing the salt from the trueHashedPassword
                     HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(trueHashedPasswordInfo.getSalt(), p.toCharArray());

@@ -88,7 +88,6 @@ public class KeyExchangeShowPublicKeyActivity extends AppCompatActivity {
         listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, keys);
         //implement a Callable for a "Scan other key" button click
         this.iniScanbutton();
-
     }
 
     //initialisiere den "Scan other key" button und zeige eine Liste an public keys an, wenn der Button gedrückt wird. Nach der Auswahl des public keys wird erneut diese Activity gestartet und die Auswahl als message übergeben.

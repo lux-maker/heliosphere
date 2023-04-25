@@ -69,6 +69,7 @@ public class CreatePasswordActivity extends AppCompatActivity {
                     //TODO ist das der beste weg alles einzeln mit exceptions abzufangen?
                     if (p1.equals(p2)) // update the new password in the preferences
                     {
+                        Gson gson = new Gson();
                         // the two passwords are equal -> generate shared preferences and store password
                         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
                         SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
@@ -80,20 +81,13 @@ public class CreatePasswordActivity extends AppCompatActivity {
 
                         //serialize hashed password object as json and store it in settings
                         //Version mit Gson //JACKSON braucht keine Umwege um das secretKeySpec Okejt zu json zu machen, wandelt aber die Arrays[] um und bekommt dann Probleme bei json -> Objekt
-                        Gson gson = new Gson();
-
-                        //wir müssen alles in kleine Teile aufteilen, weil Gson sont bei gson.toJson(hashedPasswordInfo) nur für den Salt die Sachen richtig einließt, bei SecretKeySpec würde im json nur "secretKeySpec_":{} stehen, dadruch könnte das PW später nicht abgeglichen werden.
-                        String json_salt = gson.toJson(hashedPasswordInfo.getSalt()); //enhält den salt
-                        String json_keySpec_key = gson.toJson(hashedPasswordInfo.getSecretKeySpec().getEncoded()); //enhält den Hash des keys
-                        String json_keySpec_alogrithm = gson.toJson(hashedPasswordInfo.getSecretKeySpec().getAlgorithm()); //enhält das Verschlüsselungsverfahren "algorithm": "AES"
-                        String json = json_salt+";"+json_keySpec_key+";"+json_keySpec_alogrithm; //setze die Strings mit ; zusammen, danach können wir sie durch ";" später wieder trennen.
-                        editor.putString("hashedPWInfo", json); //schreibe das Hash-Wert des PWs unter hashedPWInfo in die Datei AccessKey in den sharedPreferences
+                        editor.putString("hashedPWInfo", GsonHelper.HashedPWInfo2String(hashedPasswordInfo)); //schreibe das Hash-Wert des PWs unter hashedPWInfo in die Datei AccessKey in den sharedPreferences
 
                         //generate RSA key pair, encrypt the private one and save both
                         KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
                         HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), p1.toCharArray()); //enthält verschlüsselten private key (+salt +iv), verschlüsselt mit dem neuen App-PW
 
-                        // instantiate new hasMap to store the public keys that are potentially scanned by the user later
+                        // instantiate new hashMap to store the public keys that are potentially scanned by the user later
                         HashMap<String,String> publicKeyMap = new HashMap<String,String>();
                         // store the own public key in it by default
                         publicKeyMap.put("own key", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));

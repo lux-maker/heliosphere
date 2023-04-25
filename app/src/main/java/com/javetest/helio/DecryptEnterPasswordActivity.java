@@ -77,7 +77,6 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 //load true hashed password
                 String json = (settings.getString("hashedPWInfo", ""));
 
-
                 //json wurde in CreatePasswort Activity aufwendig aufgeteilt und verknüpft, dass müssen wir jetzt wieder entdrosseln:
                 String[] json_split = json.split(";"); //json = "salt ; hash ; algorithm"
                 byte[] pw_salt = gson.fromJson(json_split[0], byte[].class);

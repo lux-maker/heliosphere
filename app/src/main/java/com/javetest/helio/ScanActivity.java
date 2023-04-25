@@ -42,13 +42,12 @@ public class ScanActivity extends AppCompatActivity {
 
         Intent intent_extra = getIntent();
         redirection = intent_extra.getStringExtra("redirection"); //übergebener Text, der spezifiziert, wohin die Nachricht aus dem QR Code gehen soll
-        if (redirection == null) { //wenn kein Text übergeben wurde, kommt der Intent von der Main Activity, dann soll zunächst erstmal der eigene public key angezeigt werden.
+        if (redirection == null) {
          //TODO was machen wir hier?
+            //ich würde sagen das fangen wir als Fehler ab und bauen den Code so dass dieser Fall nicht eintritt
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); //zurückbutton initialisieren
-
-
 
         CodeScannerView scannerView = findViewById(R.id.scanner_view); //Objekt bezieht sich auf com.budiyev.android.codescanner.CodeScannerView aus dem GUI
         mCodeScanner = new CodeScanner(this, scannerView);
