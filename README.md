@@ -38,6 +38,15 @@
 -> eventuell erst für spätere Visionen
 Für jetzige Version: Möglichkeit, eigenen public key und public key von anderen Personen im Klartext anzeigen zu können. 
 
+## QR Code Basisc
+* Der QR Code enthält den kodierten Inhalt zusammen mit Redundanzen und Check-Summen, um die Fehleranfälligkeit zu minimieren
+** Level H: 30% Beschädigung möglich
+** Level Q: 25% Beschädigung möglich
+** Level M: 15% Beschädigung möglich
+** Level L: 7% Beschädigung möglich (Standard Einstellung)
+* maximale Anzahl Elemente (quadrate) ist 177x177
+-> bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
+
 ## Scan Protokoll:
 Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen werden und in welche Reihenfolge diese zusammengesetzt sind. 
 * Überlegen, wie die Anzahl der enthaltenen QR Codes kodiert wird
