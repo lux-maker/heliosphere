@@ -45,11 +45,15 @@ Für jetzige Version: Möglichkeit, eigenen public key und public key von andere
     * Level M: 15% Beschädigung möglich
     * Level L: 7% Beschädigung möglich (Standard Einstellung)
 * maximale Anzahl Elemente (quadrate) ist 177x177
-    -> bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
-    -> 177x177 elemente sehen auf dem bildschirm so aus:
+    * bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
+    * das entspricht ca 2.5 Din A 4 Seiten
+    * 177x177 elemente sehen auf dem bildschirm so aus:
 
 ![Alt text](https://github.com/lux-maker/heliosphere/blob/master/Screenshot%20from%202023-04-25%2013-32-25.png?raw=true "Title")
 
+* die nachrichten unserer Nutzer*innen im klartext werden nicht super groß sein, aber verschlüsselung bläht die nachricht auf
+* die beste Länge der Characters pro QR-Code muss noch herausgefunden werden oder bleibt variabel (für jetzt implementierung über Klassen variable)
+ 
 ## Scan Protokoll:
 Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen werden und in welche Reihenfolge diese zusammengesetzt sind. 
 * Überlegen, wie die Anzahl der enthaltenen QR Codes kodiert wird
