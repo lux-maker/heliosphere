@@ -46,6 +46,8 @@ Für jetzige Version: Möglichkeit, eigenen public key und public key von andere
     * Level L: 7% Beschädigung möglich (Standard Einstellung)
 * maximale Anzahl Elemente (quadrate) ist 177x177
     -> bei Fehlerlevel L entspricht das 23.648 Bit (7089 Dezimalziffern, 4296 alphanumerische Zeichen)
+    -> 177x177 elemente sehen auf dem bildschirm so aus:
+    ![Alt text](https://github.com/lux-maker/heliosphere/blob/master/Screenshot%20from%202023-04-25%2013-32-25.png?raw=true "Title")
 
 ## Scan Protokoll:
 Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen werden und in welche Reihenfolge diese zusammengesetzt sind. 
