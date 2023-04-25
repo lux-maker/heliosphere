@@ -108,4 +108,4 @@ public static int computeQRPosition(int[] positionTuple)
 * fatal Error löscht / überschreibt alle Daten sofort und schließt die App. 
 * Wir gehen davon aus, dass ein fatal Error nur eintritt, wenn eine Person von außen versucht die App zu manipulieren = Angriff. 
 * Da sich für das offline Handy die externen Faktoren nie ändern werden, können wir uns sicher sein, dass die fatal Errors nur zu besorgniserweckenden Aktionen passieren. 
-
+* sollten wir auf jeden einbauen, würde es aber unter anderm namen laufen lassen (sowas wie "Critical Vulnerability Detection") weil fatal Error meiner Aufassung nach einen Fehler im Programm beschreibt, während das Löschen aller Daten in bestimmten Situationen eine einwandfreie Funktionalität darstellt (ist vielleicht Haarspalterei aber sonst kommen wir eventuell in der kommunikation durcheinander ;) )
