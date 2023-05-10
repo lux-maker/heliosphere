@@ -80,7 +80,6 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 String jsonKey = settings.getString("RSAPrivate", "");
                 Type type = new TypeToken<HashMap<String, byte[]>>(){}.getType();
                 privateKeyEncrypted = GsonHelper.fromJson(jsonKey, type);
-
             }
         }).start();
 
