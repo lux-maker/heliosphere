@@ -2,6 +2,7 @@ package com.javetest.helio;
 
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -48,5 +49,12 @@ public class GsonHelper {
         return gson.toJson(object);
     }
 
-    //TODO implement inverse of toJson
+    /**
+     transforms a json string into an object of specified type
+     */
+    public static <T> T fromJson(String json, Type objectType)
+    {
+        Gson gson = new Gson();
+        return gson.fromJson(json, objectType);
+    }
 }

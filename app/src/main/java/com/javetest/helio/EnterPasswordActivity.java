@@ -58,7 +58,7 @@ public class EnterPasswordActivity extends AppCompatActivity {
                     MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
                     SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
 
-                    //reorganize the hashed password from memory, log error if password doesnt exists yet (shouldn't ever happen at this point
+                    //reorganize the hashed password from memory, log error if password doesn't exists yet (shouldn't ever happen at this point
                     String string = settings.getString("hashedPWInfo", "");
                     if (string.equals(""))
                     {

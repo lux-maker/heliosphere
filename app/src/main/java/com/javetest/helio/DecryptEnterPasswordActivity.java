@@ -49,8 +49,7 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
     Button button;
 
     SharedPreferences settings;
-    Gson gson = new Gson();
-    HashedPasswordInfo trueHashedPasswordInfo;
+    HashedPasswordInfo hashedPasswordInfo;
     PrivateKey privateKey = null;
     HashMap<String, byte[]> privateKeyEncrypted;
 
@@ -68,28 +67,19 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
         //run the loading of passwords on a different thread to preserve frame rate
         new Thread(new Runnable() {
             public void run() {
-                Log.i("DecryptEnterPasswordActivity", "thread is running");
 
                 //load password from memory
                 MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-                settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+                settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
 
                 //load true hashed password
                 String json = (settings.getString("hashedPWInfo", ""));
-
-                //json wurde in CreatePasswort Activity aufwendig aufgeteilt und verknüpft, dass müssen wir jetzt wieder entdrosseln:
-                String[] json_split = json.split(";"); //json = "salt ; hash ; algorithm"
-                byte[] pw_salt = gson.fromJson(json_split[0], byte[].class);
-                byte[] pw_SecretKeySpec_key = gson.fromJson(json_split[1], byte[].class);
-                String pw_SecretKeySpec_algorithm = gson.fromJson(json_split[2], String.class);
-                SecretKeySpec secretKeySpec = new SecretKeySpec(pw_SecretKeySpec_key, pw_SecretKeySpec_algorithm); //erstelle ein secretKeySpec Objekt, damit wir das für die HashedPasswordInfo class verwenden können
-                trueHashedPasswordInfo = new HashedPasswordInfo(pw_salt, secretKeySpec); //Objekt enthält Hash-Wert des App-PWs und den Salt
-
+                hashedPasswordInfo = GsonHelper.String2HashedPWInfo(json);
 
                 //load RSA key from memory
                 String jsonKey = settings.getString("RSAPrivate", "");
                 Type type = new TypeToken<HashMap<String, byte[]>>(){}.getType();
-                privateKeyEncrypted = gson.fromJson(jsonKey, type);
+                privateKeyEncrypted = GsonHelper.fromJson(jsonKey, type);
 
             }
         }).start();
@@ -102,10 +92,10 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
             {
                 //hash entered password
                 String p = enteredPW.getText().toString();
-                HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(trueHashedPasswordInfo.getSalt(), p.toCharArray());
+                HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), p.toCharArray());
 
                 //compare passwords
-                if (trueHashedPasswordInfo.equals(enteredHashedPasswordInfo))
+                if (hashedPasswordInfo.equals(enteredHashedPasswordInfo))
                 {
                     //passwords match -> start to decrypt message
                     Log.i("DecryptEnterPasswordActivity", "passwords match");
