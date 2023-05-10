@@ -39,7 +39,7 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
 
         //load SharedPreferences from memory and check if it already contains a password, otherwise define one
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext()); //enthält neu erzeugten neuen master key, den es braucht um jetzt gleich die verschlüsselten sharedPreferences zu öffnen //MasterKey: Wrapper-class, references a key that's stored in the Android Keystore //context: in order to access the stored preferences
-        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey"); //enthält unverschlüsselten Inhalt aus der Datei AcessKey in den sharedPreferences.
+        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys"); //enthält unverschlüsselten Inhalt aus der Datei AcessKey in den sharedPreferences.
 
         json = settings.getString("hashedPWInfo",""); //if preference does not exist, return ""
 
@@ -49,18 +49,17 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
             @Override
             public void run()
             {
+                Intent intent;
                 if(json.equals("")) //first registration in application -> require user password input
                 {
-                    Intent intent = new Intent(getApplicationContext(), CreatePasswordActivity.class); //create intent to start CreatePasswordActivity
-                    startActivity(intent); //start CreatePasswordActivity
-                    finish(); //finnish current activity
+                    intent = new Intent(getApplicationContext(), CreatePasswordActivity.class); //create intent to start CreatePasswordActivity
                 }
                 else // password was created before, request it
                 {
-                    Intent intent = new Intent(getApplicationContext(), EnterPasswordActivity.class); //create intent to start EnterPasswordActivity
-                    startActivity(intent); //start EnterPasswordActivity
-                    finish(); //finnish current activity
+                    intent = new Intent(getApplicationContext(), EnterPasswordActivity.class); //create intent to start EnterPasswordActivity
                 }
+                startActivity(intent); //start EnterPasswordActivity
+                finish();
             }
         };
 

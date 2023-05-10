@@ -43,31 +43,35 @@ public class EnterPasswordActivity extends AppCompatActivity {
         //implement a Callable for a "ENTER" button click
         button.setOnClickListener(new View.OnClickListener()
         {
+            //when "ENTER" button clicked: speichere die Eingabe, lade den Hash-Wert und den Salt des APP-PWs, hashe das eingegebene PW mit dem geladenen Salt und vergleiche
+            //die Hash-Werte. Wenn gleich, dann starte Main Activity sonst zeige eine Fehlermeldung an.
             @Override
-            public void onClick(View view) //when "ENTER" button clicked: speichere die Eingabe, lade den Hash-Wert und den Salt des APP-PWs, hashe das eingegebene PW mit dem geladenen Salt und vergleiche die Hash-Werte. Wenn gleich, dann starte Main Activity sonst zeige eine Fehlermeldung an.
+            public void onClick(View view)
             {
-                String p = enteredPW.getText().toString();
-                if(p.equals(""))
+                String enteredPassword = enteredPW.getText().toString();
+                if(enteredPassword.equals(""))
                 {
                     Toast.makeText(EnterPasswordActivity.this, "please type in password", Toast.LENGTH_SHORT).show();
                 }
                 else {
-
-                    //load password from memory
+                    //load hashed password from memory
                     MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-                    SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+                    SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
 
-                    //reorganize the hashed password from memory
-                    Gson gson = new Gson();
-                    String string = settings.getString("hashedPWInfo", ""); //TODO sichergehen dass an dieser stelle niemals "" zurückgegeben wird
+                    //reorganize the hashed password from memory, log error if password doesnt exists yet (shouldn't ever happen at this point
+                    String string = settings.getString("hashedPWInfo", "");
+                    if (string.equals(""))
+                    {
+                        Log.e("EnterPasswordActivity", "hashed password loading failure");
+                    }
 
-                    HashedPasswordInfo trueHashedPasswordInfo = GsonHelper.String2HashedPWInfo(string);
+                    HashedPasswordInfo hashedPasswordInfo = GsonHelper.String2HashedPWInfo(string);
 
                     //hash the newly entered password by reusing the salt from the trueHashedPassword
-                    HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(trueHashedPasswordInfo.getSalt(), p.toCharArray());
+                    HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), enteredPassword.toCharArray());
 
                     // compare hashes with overwritten equals ("==") operator
-                    if (hashedPasswordInfo.equals(trueHashedPasswordInfo)) //hashedPasswordInfo = eingegebenes PW // trueHashedPasswordInfo = tatsächliches PW-Passwort
+                    if (hashedPasswordInfo.equals(enteredHashedPasswordInfo)) //hashedPasswordInfo = eingegebenes PW // trueHashedPasswordInfo = tatsächliches PW-Passwort
                     {
                         //start the main application
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);

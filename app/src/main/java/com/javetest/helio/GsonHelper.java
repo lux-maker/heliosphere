@@ -2,15 +2,17 @@ package com.javetest.helio;
 
 import com.google.gson.Gson;
 
+import java.util.HashMap;
+
 import javax.crypto.spec.SecretKeySpec;
 
 public class GsonHelper {
 
-    public static String HashedPWInfo2String(HashedPasswordInfo hashedPasswordInfo)
-    /*
-    transforms an instance of HashedPasswordInfo into a String
-    the returned String has the form: >> salt ; hash ; algorithm <<
+    /**
+    transforms an instance of HashedPasswordInfo into a String; the returned String has the form: >> salt ; hash ; algorithm <<
     */
+    public static String HashedPWInfo2String(HashedPasswordInfo hashedPasswordInfo)
+
     {
         Gson gson = new Gson();
         String json_salt = gson.toJson(hashedPasswordInfo.getSalt()); //enhält den salt
@@ -19,10 +21,11 @@ public class GsonHelper {
         return json_salt+";"+json_keySpec_key+";"+json_keySpec_alogrithm; //setze die Strings mit ; zusammen, danach können wir sie durch ";" später wieder trennen.
     }
 
-    public static HashedPasswordInfo String2HashedPWInfo(String string)
-    /*
-         inverse of the HashedPWInfo2String
+    /**
+     transforms a String of the form >> salt ; hash ; algorithm << into an instance of HashedPasswordInfo
     */
+    public static HashedPasswordInfo String2HashedPWInfo(String string)
+
     {
         Gson gson = new Gson();
 
@@ -35,4 +38,15 @@ public class GsonHelper {
 
         return new HashedPasswordInfo(pw_salt, secretKeySpec); //Objekt enthält Hash-Wert des App-PWs und den Salt
     }
+
+    /**
+     transforms any generic object into a json string
+     */
+    public static <T> String toJson(T object) //generic function with template T
+    {
+        Gson gson = new Gson();
+        return gson.toJson(object);
+    }
+
+    //TODO implement inverse of toJson
 }

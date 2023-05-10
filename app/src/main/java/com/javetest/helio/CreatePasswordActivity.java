@@ -55,10 +55,10 @@ public class CreatePasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) //when "CONFIRM" button clicked: 1. Schaue, ob etwas eingeben wurde 2.
             {
-                String p1 = password.getText().toString();
-                String p2 = passwordRepeat.getText().toString();
+                String enteredPW = password.getText().toString();
+                String enteredPWRepeat = passwordRepeat.getText().toString();
 
-                if(p1.equals("") || p2.equals(""))
+                if(enteredPW.equals("") || enteredPWRepeat.equals(""))
                 {
                     //no password was entered -> show massage as "Toast", a small pop up at the bottom screen
                     Toast.makeText(CreatePasswordActivity.this, "No password entered!", Toast.LENGTH_SHORT).show();
@@ -66,44 +66,37 @@ public class CreatePasswordActivity extends AppCompatActivity {
                 else
                 {
                     //TODO checken ob die passwörter die geforderte sicherheit aufweisen? Länge des numerischen Passwortes?
-                    //TODO ist das der beste weg alles einzeln mit exceptions abzufangen?
-                    if (p1.equals(p2)) // update the new password in the preferences
+
+                    if (enteredPW.equals(enteredPWRepeat)) // update the new password in the preferences
                     {
-                        Gson gson = new Gson();
                         // the two passwords are equal -> generate shared preferences and store password
                         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-                        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+                        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
                         SharedPreferences.Editor editor = settings.edit();
 
                         // now hash the password and save it
-                        HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(p1.toCharArray());
-
+                        HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(enteredPW.toCharArray());
 
                         //serialize hashed password object as json and store it in settings
-                        //Version mit Gson //JACKSON braucht keine Umwege um das secretKeySpec Okejt zu json zu machen, wandelt aber die Arrays[] um und bekommt dann Probleme bei json -> Objekt
+                        //the serialization is done within the GsonHelper class (static member functions)
                         editor.putString("hashedPWInfo", GsonHelper.HashedPWInfo2String(hashedPasswordInfo)); //schreibe das Hash-Wert des PWs unter hashedPWInfo in die Datei AccessKey in den sharedPreferences
 
-                        //generate RSA key pair, encrypt the private one and save both
+                        //generate RSA key pair; the private key gets encrypted with the app password
                         KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
-                        HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), p1.toCharArray()); //enthält verschlüsselten private key (+salt +iv), verschlüsselt mit dem neuen App-PW
+                        HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), enteredPW.toCharArray());
 
-                        // instantiate new hashMap to store the public keys that are potentially scanned by the user later
+                        // instantiate new hashMap to store the public keys that are potentially scanned by the user later adn store the own public key in it by default
                         HashMap<String,String> publicKeyMap = new HashMap<String,String>();
-                        // store the own public key in it by default
                         publicKeyMap.put("own key", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
-                        String publicKeyMapJson = gson.toJson(publicKeyMap); //serialize public key as json
+
+                        String publicKeyMapJson = GsonHelper.toJson(publicKeyMap); //serialize public key as json
                         editor.putString("publicKeyMap", publicKeyMapJson); //and store it in settings in publicKeyMap
 
                         //serialize encrypted/encoded keys and store it in settings as well
-                        String jsonPrivate = gson.toJson(privateKeyEncrypted);
+                        String jsonPrivate = GsonHelper.toJson(privateKeyEncrypted);
                         editor.putString("RSAPrivate", jsonPrivate); //privater Schlüssel verschlüsselt mit App-PW
-                        editor.putString("RSAPublic", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded())); //öffentlicher Schlüssel mit Base64 verschlüsselt
 
-                        //Es wurde jetzt zweimal der öffentliche Schlüssel in den shared Preferences gespeichert:
-                        //1. Datei: "publicKeyMap" mit Index: "own key" (verschlüsselt mit Base64)
-                        //2. Datei: "RSAPublic" (verschlüsselt mit Base64)
-
-
+                        // apply changes to shared preferences
                         editor.apply();
 
                         //start the main application
