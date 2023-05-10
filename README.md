@@ -52,7 +52,7 @@ Für jetzige Version: Möglichkeit, eigenen public key und public key von andere
 ![Alt text](https://github.com/lux-maker/heliosphere/blob/master/Screenshot%20from%202023-04-25%2013-32-25.png?raw=true "Title")
 
 * die nachrichten unserer Nutzer*innen im klartext werden nicht super groß sein, aber verschlüsselung bläht die nachricht auf
-* die beste Länge der Characters pro QR-Code muss noch herausgefunden werden oder bleibt variabel (für jetzt implementierung über Klassen variable)
+* die beste Länge der Characters pro QR-Code muss noch herausgefunden werden oder bleibt variable bzw. von*m Nutzer*in einstellbar (für jetzt implementierung über Klassen variable in MessageSplittingHandler)
  
 ## Scan Protokoll:
 Beim scannen wird im ersten QR Code angezeigt, wie viele QR Codes noch folgen werden und in welche Reihenfolge diese zusammengesetzt sind. 
