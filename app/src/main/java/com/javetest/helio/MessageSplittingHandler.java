@@ -77,7 +77,11 @@ public class MessageSplittingHandler
         Log.i("MessageSplittingHandler - final Junks ", junkString + " ... i:" + position);
 
         if (addPositionNumber == true){
-            return String.valueOf(positionNumber) + junkString;
+            //TODO (lux) hier habe ich rumgepfuscht noch schön maxhen
+            String m = String.valueOf(positionNumber) + junkString;
+            if (positionNumber < 10)
+                m="0"+m;
+            return m;
             //TODO junkstring bytes abziehen für postionNumber
         }else {
             return junkString;
