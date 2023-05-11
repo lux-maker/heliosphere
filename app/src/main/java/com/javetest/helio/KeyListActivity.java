@@ -96,9 +96,9 @@ public class KeyListActivity extends AppCompatActivity {
                 String publicKeyString = publicKeyMap.get(itemName);
 
                 try {
-                    //entschlüsseln des Hash-Wertes -> herauslesen des öffentlichen Schlüssels
-                    //(paule) verstehe das hier noch nicht komplett. Also was sagt genau jede Zeile dieser nächsten 3?
-                    //(lux) die java libvrary für RSA verschlüsselung arbeitet mit public keys die nach dem x509 schema encoded sind,
+                    // entschlüsseln des Hash-Wertes -> herauslesen des öffentlichen Schlüssels
+                    // (paule) verstehe das hier noch nicht komplett. Also was sagt genau jede Zeile dieser nächsten 3?
+                    // (lux) die java libvrary für RSA verschlüsselung arbeitet mit public keys die nach dem x509 schema encoded sind,
                     // die klasse EncodedKeySpec hält den schlüssel im richtigen format bereit
                     KeyFactory keyFactory = KeyFactory.getInstance("RSA");
                     EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(publicKeyString)); //public key muss zunächst entschlüsselt werden mit Base64

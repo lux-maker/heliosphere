@@ -79,7 +79,7 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
                 {
                     //load public keys from shared preferences
                     MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-                    SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+                    SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
                     SharedPreferences.Editor editor = settings.edit(); //damit wir die SahredPreferences bearbeiten können.
 
                     //load the public key map, an instance that maps key names to public keys
@@ -92,14 +92,14 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
                         //TODO how to handle this situation?
                     }
                     //if public key map exists in shared preferences, parse the string to a HashMap object
-                    Gson gson = new Gson();
-                    HashMap<String, String> publicKeyMap = gson.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
+
+                    HashMap<String, String> publicKeyMap = GsonHelper.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
 
                     //public key zur HashMap hinzufügen:
                     publicKeyMap.put(keyname, publickey);
 
                     //HasHMap wieder zu Json machen und dann in den SharedPreferences ablegen.
-                    String publicKeyMapJson2 = gson.toJson(publicKeyMap); //serialize public key as json
+                    String publicKeyMapJson2 = GsonHelper.toJson(publicKeyMap); //serialize public key as json
                     editor.putString("publicKeyMap", publicKeyMapJson2);
                     editor.apply();
 

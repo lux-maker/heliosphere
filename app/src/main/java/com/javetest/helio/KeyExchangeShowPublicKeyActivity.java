@@ -72,12 +72,11 @@ public class KeyExchangeShowPublicKeyActivity extends AppCompatActivity {
 
         //load password from memory
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-        settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+        settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
 
-        Gson gson = new Gson();
         publicKeyMap = new HashMap<String,String>();
         String json = (settings.getString("publicKeyMap", ""));
-        publicKeyMap = gson.fromJson(json,HashMap.class); //aus json wieder in Objekt umwandeln
+        publicKeyMap = GsonHelper.fromJson(json,HashMap.class); //aus json wieder in Objekt umwandeln
 
         //QR-Code anzeigen
         this.showQR(public_keyname); //zeige zunächst den eigenen public key an, sonst ist die eingabe aus dem Intent in dem String public_keyname übergeben.
