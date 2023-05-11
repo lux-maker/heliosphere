@@ -66,7 +66,7 @@ public class KeyListActivity extends AppCompatActivity {
 
         //load public keys from shared preferences
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "AccessKey");
+        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
 
         //load the public key map, an instance that maps key names to public keys
         String publicKeyMapJson = settings.getString("publicKeyMap",""); //if preference does not exist, return ""
@@ -79,8 +79,7 @@ public class KeyListActivity extends AppCompatActivity {
         }
 
         //if public key map exists in shared preferences, parse the string to a HashMap object
-        Gson gson = new Gson();
-        HashMap<String, String> publicKeyMap = gson.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
+        HashMap<String, String> publicKeyMap = GsonHelper.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
         //add all keys from the hashmap to a string array and include the resulting array in the ArrayAdapter to display it on screen
         String[] keys = publicKeyMap.keySet().toArray(new String[0]);
         ArrayAdapter<String> listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, keys);
