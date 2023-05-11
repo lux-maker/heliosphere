@@ -104,15 +104,36 @@ public class KeyListActivity extends AppCompatActivity {
                     EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(HelperFunctionsStringByteEncoding.string2byte(publicKeyString)); //public key muss zunächst entschlüsselt werden mit Base64
                     publicKey = keyFactory.generatePublic(publicKeySpec);
                 } catch (Exception e) {
-                    Log.e("Keylistactivity", "RSA key decoding failure", e); //logging, when an error occurs
+                    Log.i("Keylistactivity", "RSA key decoding failure", e); //logging, when an error occurs
                 }
 
-                //verschlüsseln der Nachricht mit dem öffentlichen Schlüssel
-                byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(clearMessage.getBytes(StandardCharsets.UTF_8), publicKey);
-                //byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(clearMessage), publicKey);
+                Log.i("Keylistactivity - clear message", clearMessage);
+
+                //+++++++++++message splitting+++++++++++
+                //Message splitting for multi QR-codes
+                MessageSplittingHandler messageSplittingHandler = new MessageSplittingHandler(50, 20); //use the values (maxNumberOfJunks = 13 /chars = 300) of the class //TODO genaue Char anzahl für max RSA block herausfinden
+                messageSplittingHandler.loadMessage(clearMessage);
+                int requiredNumberOfJunks = messageSplittingHandler.getRequiredNumberOfJunks();
+                //debug
+                Log.i("KeyListActivity - requiredNumberOfJunks",  Integer.toString(requiredNumberOfJunks) );
+
+                //verschlüsseln der Nachricht mit dem öffentlichen Schlüssel in den einzelnen Junks
+                String mergedencryptedMessage = "";
+                byte[] encryptedMessageBytes = null;
+                for (int i = 0; i < requiredNumberOfJunks; i++){
+                    encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(messageSplittingHandler.getMessageJunkAtPosition(i, false).getBytes(StandardCharsets.UTF_8), publicKey);
+                    //byte[] encryptedMessageBytes = HelperFunctionsCrypto.encryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(clearMessage), publicKey);
+                    Log.i("KeyListActivity - Junks",  encryptedMessageBytes + " ...i: " + i);
+                    mergedencryptedMessage = mergedencryptedMessage + HelperFunctionsStringByteEncoding.byte2string(encryptedMessageBytes);
+                   // Log.i("KeyListActivity - merged Junks encrypted",  mergedencryptedMessage  + " ...i: " + i);
+
+                }
+                Log.i("KeyListActivity - merged Junks encrypted final",  mergedencryptedMessage + "");
+
+
 
                 //ruft die nächste Methode dieser Klasse auf und übergibt die Verschlüsselte Nachricht
-                showCustomDialog(HelperFunctionsStringByteEncoding.byte2string(encryptedMessageBytes));
+                showCustomDialog(mergedencryptedMessage);
             }
         });
     }
@@ -130,6 +151,7 @@ public class KeyListActivity extends AppCompatActivity {
         //Initializing the views of the dialog.
         final ImageView imageCode = (ImageView) findViewById(R.id.imageCode); // Objekt bezieht sich auf ImageView im GUI
         Button closeButton = (Button) findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
+        Button nextqrButton = (Button) findViewById(R.id.nextqr_button); // Objekt bezieht sich auf "next QR Button" button im GUI
 
         //Herausbekommen der Breite des Bildschirms für den QR-Code
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -139,12 +161,22 @@ public class KeyListActivity extends AppCompatActivity {
         imageCode.getLayoutParams().height = width; //weil quadratisch width = height
 
 
+        //Anzeigen in verschiedenen QR codes
+        //+++++++++++message splitting+++++++++++
+        //Message splitting for multi QR-codes
+        MessageSplittingHandler messageSplittingHandler = new MessageSplittingHandler(13, 500); //use the values (maxNumberOfJunks = 13 /chars = 300) of the class //TODO genaue Char anzahl für max RSA block herausfinden
+        messageSplittingHandler.loadMessage(encryptedMessage);
+        int requiredNumberOfJunks = messageSplittingHandler.getRequiredNumberOfJunks();
+
+        //debug
+        Log.i("KeyListActivity - QR - requiredNumberOfJunks",  Integer.toString(requiredNumberOfJunks) );
+
         //initializing MultiFormatWriter for QR code generation
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
         try {
             //BitMatrix class to encode entered text and set Width & Height
-            BitMatrix matrix = multiFormatWriter.encode(encryptedMessage, BarcodeFormat.QR_CODE, width, width); //weil quadratisch width = height
+            BitMatrix matrix = multiFormatWriter.encode(messageSplittingHandler.getMessageJunkAtPosition(0, true), BarcodeFormat.QR_CODE, width, width); //weil quadratisch width = height
 
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(matrix);//creating bitmap of code
@@ -152,6 +184,48 @@ public class KeyListActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+        nextqrButton.setOnClickListener(new View.OnClickListener() {
+            int runde = 1;
+            public void onClick(View view) {
+
+                if (runde < messageSplittingHandler.getRequiredNumberOfJunks()){
+
+                    //initializing MultiFormatWriter for QR code generation
+                    MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+
+                    try {
+                        //BitMatrix class to encode entered text and set Width & Height
+                        BitMatrix matrix = multiFormatWriter.encode(messageSplittingHandler.getMessageJunkAtPosition(runde, true), BarcodeFormat.QR_CODE, width, width); //weil quadratisch width = height
+
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        Bitmap bitmap = barcodeEncoder.createBitmap(matrix);//creating bitmap of code
+                        imageCode.setImageBitmap(bitmap);//Setting generated QR code to imageView
+                        runde ++;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+
+                } else {
+                    Toast.makeText(KeyListActivity.this, "Alle QR Codes druch", Toast.LENGTH_SHORT).show();
+
+                }
+
+
+            }
+        });
+
+
+
+
+
+
+
+
+
         //dialog.show();
 
         //implement a Callable for a "CLOSE CODE AND MESSAGE" button click

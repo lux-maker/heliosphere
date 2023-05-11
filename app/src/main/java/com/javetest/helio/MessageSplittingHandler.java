@@ -1,15 +1,18 @@
 package com.javetest.helio;
 
 
+import android.util.Log;
+
 import java.lang.Math;
 
-public class MessageSplittingHandler
-/*
+/**
     class processes message string in order to subdivide it into junks
     that can fit into one QR-Code each
     -> it assigns a position number to every junk
     -> it rejects the message if it can not fit into 13 QR codes in total
 */
+public class MessageSplittingHandler
+
 
 {
     private int maxNumberOfJunks = 13; // maximum number of QR codes
@@ -34,10 +37,19 @@ public class MessageSplittingHandler
         //TODO die Berechnung von requiredNumberOfJunks berücksichtigt nicht die characters die für die positionsnummer verbraucht werden
         this.message = message;
         double length = this.message.length(); //counts characters including white spaces
-        this.requiredNumberOfJunks = (int) Math.ceil(length / (double) this.maxNumberOfJunks);
+        this.requiredNumberOfJunks = (int) Math.ceil(length / (double) this.maxNumberOfChars);
+
+        //debug
+        Log.i("MessageSplittingHandler - message",message);
+        Log.i("MessageSplittingHandler - this.message",this.message);
+        Log.i("MessageSplittingHandler - this.message",message.length()+"");
+        Log.i("MessageSplittingHandler - this.message",this.message.length()+"");
+        Log.i("MessageSplittingHandler - message.length ",length +"");
+        Log.i("MessageSplittingHandler - Junks ", requiredNumberOfJunks + "");
 
         // if the message can be separated into at most maxNumberOfJunks junks, return true, otherwise return false
         return (this.requiredNumberOfJunks <= this.maxNumberOfJunks);
+
     }
 
     public int getRequiredNumberOfJunks()
@@ -46,22 +58,31 @@ public class MessageSplittingHandler
         return requiredNumberOfJunks;
     }
 
-    public String getMessageJunkAtPosition(int position)
+    public String getMessageJunkAtPosition(int position, boolean addPositionNumber)
     // returns a substring of the original message together with the positionNumber
     // position refers to the index: 0 <= position < requiredNumberOfJunks;
     {
+
         //TODO debug and validate
         //check if position is within the possible interval, otherwise return null
         if (position >= this.requiredNumberOfJunks) return null;
 
         // get the start and end indices (endIndex must not be greater than the message itself)
         int startIndex = this.maxNumberOfChars * position;
-        int endIndex = Math.max(this.maxNumberOfChars * (position + 1), this.message.length() -1);
+        int endIndex = Math.min(this.maxNumberOfChars * (position + 1), this.message.length());
 
         String junkString = this.message.substring(startIndex, endIndex);
         int positionNumber = computeQRPositionNumber(new int[]{this.requiredNumberOfJunks, position + 1});
 
-        return String.valueOf(positionNumber) + junkString;
+        Log.i("MessageSplittingHandler - final Junks ", junkString + " ... i:" + position);
+
+        if (addPositionNumber == true){
+            return String.valueOf(positionNumber) + junkString;
+            //TODO junkstring bytes abziehen für postionNumber
+        }else {
+            return junkString;
+        }
+
     }
 
     private int computeQRPositionNumber(int[] positionTuple)
