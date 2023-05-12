@@ -6,11 +6,11 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/publickey"
+        android:id="@+id/qrStatusText"
         android:layout_width="216dp"
-        android:layout_height="27dp"
+        android:layout_height="40dp"
         android:layout_marginStart="97dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="98dp"
         android:ems="10"
         android:text="encrypted and encoded message"
@@ -22,19 +22,31 @@
         android:id="@+id/imageCode"
         android:layout_width="407dp"
         android:layout_height="324dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/publickey" />
+        app:layout_constraintTop_toBottomOf="@+id/qrStatusText" />
 
     <Button
         android:id="@+id/close_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="92dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="80dp"
         android:layout_marginEnd="92dp"
         android:text="CLOSE CODE AND MESSAGE"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageCode" />
+
+    <Button
+        android:id="@+id/nextqr_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="92dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="92dp"
+        android:text="next QR Code"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageCode" />
