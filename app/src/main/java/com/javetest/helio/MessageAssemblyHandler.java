@@ -24,33 +24,27 @@ public class MessageAssemblyHandler
      * @return true if the laoded messageChunk is the last one to assemble the entire message, otherwise falls
      */
     public boolean loadMessageChunk(String messageChunk) throws IllegibleScanException {
+
         if (this.firstChunk) //then this function is called for the first time since the instance of this class was created
         {
-            //TODO what if a public key is laoded? throw exception?
             //extract the total number of chunks and initialize the string message chunk array to null
             this.totalNumberOfChunks = extractPositionNumberTuple(messageChunk)[0];
-
-            if (this.totalNumberOfChunks < 1 || this.totalNumberOfChunks > 13)
-            {
-                throw new IllegibleScanException("total number of chunks is invalid");
-            }
-
             messageChunks = new String[this.totalNumberOfChunks];
-            this.firstChunk = false;
         }
 
-        int currentPosition = extractPositionNumberTuple(messageChunk)[1] - 1; //index is required not position
-        Log.i("MessageAssemblyHandler", "current position: " + Integer.toString(currentPosition));
-        Log.i("MessageAssemblyHandler", "total Number of Chunks: " + totalNumberOfChunks);
-        Log.i("MessageAssemblyHandler", "position number " + messageChunk.substring(0,2));
-        this.messageChunks[currentPosition] = extractMessage(messageChunk);
+        // extract the current positionNumbers
+        int[] positionNumbers = extractPositionNumberTuple(messageChunk);
 
-        int i = 0;
-        for (String chunk : messageChunks)
+        if (this.chunkIsValid(positionNumbers)) //checking whether the position numbers can be extracted properly from the message chunk
         {
-            Log.i("MessageAssemblyHandler", Integer.toString(i) + chunk);
-            i++;
+            //add the message chunk to the right position
+            this.messageChunks[positionNumbers[1] - 1] = extractMessage(messageChunk);
         }
+        else
+        {
+            throw new IllegibleScanException("position numbers could not be extracted from WR code");
+        }
+        this.firstChunk = false;
         return this.allChunksLoaded();
     }
 
@@ -83,26 +77,39 @@ public class MessageAssemblyHandler
         return rsaBlocks;
     }
 
+    private boolean chunkIsValid(int[] positionNumbers)
+    {
+        if (this.totalNumberOfChunks < 1 || this.totalNumberOfChunks > 13) //check if the total number of chunks is within bounds
+        {
+            return false;
+        }
+        if (positionNumbers[0] != this.totalNumberOfChunks) //check if the total number of chunks are consistent with previous scans
+        {
+            return false;
+        }
+        return true;
+    }
+
+
     /**
-     * the function extracts the position numbers from the message chunk
+     * the function extracts the position numbers from the message chunk, check out Read.me for more information
      * @param messageChunk a concatenation of the position number and the actual message chunk
      * @return a tuple of ints, the first one is the total number of expected chunks, the second one is the position of the current chunk within the message
      */
     private int[] extractPositionNumberTuple(String messageChunk)
     {
         //extract the position number from the string (the first two character) and parse it to integer
-        int positionNumber = Integer.parseInt(messageChunk.substring(0,2));
 
-        /*
-        * das genaue vorgehen ist in der Git Readme hinterlegt
-        * es wird die Gaußsche summenformel verwendet
-        */
+        if (canBeParsedToInteger(messageChunk.substring(0,2)))
+        {
+            int positionNumber = Integer.parseInt(messageChunk.substring(0,2));
 
-        //TODO folgende Zeilen debugen
-        int totalNumberOfChunks = (int) Math.ceil(-0.5 + Math.sqrt(0.25 + positionNumber * 2.0));
-        int currentPosition = totalNumberOfChunks - ((((totalNumberOfChunks + 1) * totalNumberOfChunks) / 2) - positionNumber);
+            int totalNumberOfChunks = (int) Math.ceil(-0.5 + Math.sqrt(0.25 + positionNumber * 2.0));
+            int currentPosition = totalNumberOfChunks - ((((totalNumberOfChunks + 1) * totalNumberOfChunks) / 2) - positionNumber);
 
-        return new int[]{totalNumberOfChunks, currentPosition};
+            return new int[]{totalNumberOfChunks, currentPosition};
+        }
+        return new int[]{0,0};
     }
 
     public int getTotalNumberOfChunks()
@@ -138,5 +145,18 @@ public class MessageAssemblyHandler
         //iterate through the String array and check if an value is null
         for (String value : this.messageChunks) if (value == null) return false;
         return true;
+    }
+
+    /**
+     * @param string characters that are chacked for parsing potential
+     * @return true if the given string can be parsed to an integer with Integer.valueOf(String), false otherwise
+     */
+    private boolean canBeParsedToInteger(String string) {
+        try {
+            Integer.valueOf(string);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }

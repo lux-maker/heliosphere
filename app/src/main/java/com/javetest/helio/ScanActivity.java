@@ -1,5 +1,7 @@
 package com.javetest.helio;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +23,7 @@ import com.google.zxing.Result;
 import org.w3c.dom.Text;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * generelle Infos:
@@ -66,73 +69,67 @@ public class ScanActivity extends AppCompatActivity {
         CodeScannerView scannerView = findViewById(R.id.scanner_view); //Objekt bezieht sich auf com.budiyev.android.codescanner.CodeScannerView aus dem GUI
         mCodeScanner = new CodeScanner(this, scannerView);
 
-        //override the callback that is executed when a QR code is scanned and decoded
-        mCodeScanner.setDecodeCallback(new DecodeCallback()
-        {
-            @Override
-            public void onDecoded(@NonNull final Result result)
-            {
-                //this method is called after QR code is decoded -> decoded message contained in result
+        //override the callback that is executed when a QR code is scanned and decoded with a lambda function
+        mCodeScanner.setDecodeCallback(result -> {
 
-                //check out the current activation to be able to run tasks on the UI thread later (rendering and view modifiations)
-                Activity currentActivity = (Activity) getApplicationContext();
+            //check out the current activation to be able to run tasks on the UI thread later (rendering and view modifiations)
+            //Activity currentActivity = (Activity) (getApplicationContext());
 
-                //check the redirection information to choose a proper handling
-                if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) {
-                    //start the KeyExchangeSavePublicKeyActivty to save the public key
-                    intent = new Intent(ScanActivity.this, KeyExchangeSavePublicKeyActivty.class);
-                    intent.putExtra("encryptedMessage", result.getText());
-                    startActivity(intent);
-                    ScanActivity.this.finish();
-                }
-                else if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
-                    // the result contains a message chunk. save it in MessageAssemblyHandler
+            //check the redirection information to choose a proper handling
+            if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) {
+                //start the KeyExchangeSavePublicKeyActivty to save the public key
+                intent = new Intent(ScanActivity.this, KeyExchangeSavePublicKeyActivty.class);
+                intent.putExtra("encryptedMessage", result.getText());
+                startActivity(intent);
+                ScanActivity.this.finish();
+            }
+            else if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
+                // the result contains a message chunk. save it in MessageAssemblyHandler
 
-                    boolean allChunksLoaded = false;
+                boolean allChunksLoaded = false;
 
-                    //check if the scan is ok
-                    try
-                    {
-                        allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
-                    } catch (IllegibleScanException e)
-                    {
-                        currentActivity.runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                Toast.makeText(currentActivity, "The QR-Code could not be decoded. Make sure that the QR-Code contains a Heliosphere message chunk and is legible.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                    //update the information
-                    String infoTextViewContent = "Total number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getTotalNumberOfChunks()) + "\n Missing number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getNumberOfMissingChunks());
-                    currentActivity.runOnUiThread(new Runnable()
+                //check if the scan is ok
+                try
+                {
+                    allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
+                } catch (IllegibleScanException e)
+                {
+                    ScanActivity.this.runOnUiThread(new Runnable()
                     {
                         @Override
                         public void run()
                         {
-                            textView.setText(infoTextViewContent);
+                            Toast.makeText(ScanActivity.this, "The QR-Code could not be decoded. Make sure that the QR-Code contains a Heliosphere message chunk and is legible.", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-                    if (allChunksLoaded)
-                    {
-                        //send the RSA blocks to the decryption activity
-                        String[] rsaBlocks = messageAssemblyHandler.getRSABlocks();
-                        String rsaBlocksJson = GsonHelper.toJson(rsaBlocks);
-
-                        intent = new Intent(ScanActivity.this, DecryptEnterPasswordActivity.class);
-                        intent.putExtra("encryptedMessage", rsaBlocksJson);
-                        startActivity(intent);
-                        ScanActivity.this.finish();
-                    }
                 }
-                else //if the redirection information is unknown, log an error
+
+                //update the information
+                String infoTextViewContent = "Total number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getTotalNumberOfChunks()) + "\n Missing number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getNumberOfMissingChunks());
+                ScanActivity.this.runOnUiThread(new Runnable()
                 {
-                    Log.e("ScanActivity onDecode","The intent contains an unknown redirection information.");
+                    @Override
+                    public void run()
+                    {
+                        textView.setText(infoTextViewContent);
+                    }
+                });
+
+                if (allChunksLoaded)
+                {
+                    //send the RSA blocks to the decryption activity
+                    String[] rsaBlocks = messageAssemblyHandler.getRSABlocks();
+                    String rsaBlocksJson = GsonHelper.toJson(rsaBlocks);
+
+                    intent = new Intent(ScanActivity.this, DecryptEnterPasswordActivity.class);
+                    intent.putExtra("encryptedMessage", rsaBlocksJson);
+                    startActivity(intent);
+                    ScanActivity.this.finish();
                 }
+            }
+            else //if the redirection information is unknown, log an error
+            {
+                Log.e("ScanActivity onDecode","The intent contains an unknown redirection information.");
             }
         });
         scannerView.setOnClickListener(new View.OnClickListener() {

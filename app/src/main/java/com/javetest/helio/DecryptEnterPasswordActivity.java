@@ -111,10 +111,31 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                         Log.e("DecryptEnterPasswordActivity", "RSA key decoding failure", e);
                     }
 
-                    //load encrypted message and decrypt it
+                    //load encrypted message json from Intent
                     String encryptedMessage = getIntent().getStringExtra("encryptedMessage");
-                    byte[] clearMessage = HelperFunctionsCrypto.decryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(encryptedMessage), privateKey);
-                    showCustomDialog(new String(clearMessage, StandardCharsets.UTF_8));
+
+                    //parse the json string into a String array
+                    
+                    String[] rsaBlocks = GsonHelper.fromJson(encryptedMessage, new TypeToken<String[]>(){}.getType());
+
+                    int i = 0;
+                    for (String rsaBlock : rsaBlocks)
+                    {
+                        Log.i("DecrpytEnterPasswordActivity", "Block " + i + rsaBlock);
+                        i++;
+                    }
+
+                    String assembledClearMessage = new String("");
+
+                    //iterate through all rsa blocks and decrypt them one by one
+                    for (String rsaBlock : rsaBlocks)
+                    {
+                        byte[] clearMessageChunk = HelperFunctionsCrypto.decryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(rsaBlock), privateKey);
+                        assembledClearMessage = assembledClearMessage + new String(clearMessageChunk, StandardCharsets.UTF_8);
+                    }
+
+                    //display the message
+                    showCustomDialog(assembledClearMessage);
                 }
                 else
                 {
