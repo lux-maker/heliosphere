@@ -126,6 +126,13 @@ public class ScanActivity extends AppCompatActivity {
                     startActivity(intent);
                     ScanActivity.this.finish();
                 }
+                else
+                {
+                    //make sure that the ScanActivity is again brought to the front so that the camera remains active and scanning can be continued
+                    Intent resumeScanActivity = new Intent(ScanActivity.this, ScanActivity.class);
+                    resumeScanActivity.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivityIfNeeded(resumeScanActivity, 0);
+                }
             }
             else //if the redirection information is unknown, log an error
             {
