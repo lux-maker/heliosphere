@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +14,8 @@ import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.zxing.Result;
+
+import java.util.Objects;
 
 /**
  * generelle Infos:
@@ -31,23 +34,23 @@ public class ScanActivity extends AppCompatActivity {
 
     private CodeScanner mCodeScanner;
 
-    String redirection;
+    MessageAssemblyHandler messageAssemblyHandler = new MessageAssemblyHandler();
+    String redirectionInfo;
 
-    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activity_scan); //created by default
 
+        //fetch the current intent and check where it was created
         Intent intent_extra = getIntent();
-        redirection = intent_extra.getStringExtra("redirection"); //übergebener Text, der spezifiziert, wohin die Nachricht aus dem QR Code gehen soll
-        if (redirection == null) {
-         //TODO was machen wir hier?
-            //ich würde sagen das fangen wir als Fehler ab und bauen den Code so dass dieser Fall nicht eintritt
-        }
+        redirectionInfo = intent_extra.getStringExtra("redirection"); //übergebener Text, der spezifiziert, wohin die Nachricht aus dem QR Code gehen soll
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); //zurückbutton initialisieren
+        //if redirectionInfo is null, throw error
+        if (redirectionInfo == null) {Log.e("ScanActivity onCreate", "Intent String 'redirection' is null");}
+        //zurück button initialisieren
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         CodeScannerView scannerView = findViewById(R.id.scanner_view); //Objekt bezieht sich auf com.budiyev.android.codescanner.CodeScannerView aus dem GUI
         mCodeScanner = new CodeScanner(this, scannerView);
@@ -60,18 +63,39 @@ public class ScanActivity extends AppCompatActivity {
             {
                 //this method is called after QR code is decoded -> decoded message contained in result
 
-                //Auswahl zur Weiterleitung basierend auf der Herkunft des INTENTS
-                if (redirection.equals("DecryptEnterPasswordActivity")) {
-                    //start the DecryptEnterPasswordActivity to start decryption displaying of the message and
-                    intent = new Intent(ScanActivity.this, DecryptEnterPasswordActivity.class);
-                }
-                if (redirection.equals("KeyExchangeSavePublicKeyActivty")) {
+                Intent intent;
+
+                //check the redirection information to choose a proper handling
+                if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) {
                     //start the KeyExchangeSavePublicKeyActivty to save the public key
                     intent = new Intent(ScanActivity.this, KeyExchangeSavePublicKeyActivty.class);
+                    intent.putExtra("encryptedMessage", result.getText());
+                    startActivity(intent);
+                    ScanActivity.this.finish();
+                    return;
                 }
-                intent.putExtra("encryptedMessage", result.getText());
-                startActivity(intent);
-                ScanActivity.this.finish();
+                else if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
+                    // the result contains a message chunk. save it in MessageAssemblyHandler
+                    boolean allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
+
+                    //TODO popup window with decoding information (how many are left to scan)
+                    if (allChunksLoaded)
+                    {
+                        //send the RSA blocks to the decryption activity
+                        String[] rsaBlocks = messageAssemblyHandler.getRSABlocks();
+                        String rsaBlocksJson = GsonHelper.toJson(rsaBlocks);
+
+                        intent = new Intent(ScanActivity.this, DecryptEnterPasswordActivity.class);
+                        intent.putExtra("encryptedMessae", rsaBlocksJson);
+                        startActivity(intent);
+                        ScanActivity.this.finish();
+                    }
+
+                }
+                else
+                {
+                    Log.e("ScanActivity onDecode","The intent contains an unknown redirection information.");
+                }
             }
         });
         scannerView.setOnClickListener(new View.OnClickListener() {
