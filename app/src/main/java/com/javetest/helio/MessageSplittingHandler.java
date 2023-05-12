@@ -6,6 +6,7 @@ import android.util.Log;
 import java.lang.Math;
 
 /**
+
     class processes message string in order to subdivide it into chunks
     that can fit into one QR-Code each
     -> it assigns a position number to every chunk
@@ -22,17 +23,20 @@ public class MessageSplittingHandler
 
     //define the class constructor and overload it with two different argument lists
 
+
     /**
      * constructor, overloaded
      * @param maxNumberOfChunks maximum number of Chunks per message
      * @param maxNumberOfChars maximum number of characters per chunk
      */
+
     public MessageSplittingHandler(int maxNumberOfChunks, int maxNumberOfChars)
     {
         //if the numbers are specified, use them
         this.maxNumberOfChunks = maxNumberOfChunks;
         this.maxNumberOfChars = maxNumberOfChars;
     };
+
 
     /**
      * default constructor
@@ -45,10 +49,16 @@ public class MessageSplittingHandler
      * @return true if the message can be splitted into number of chunks that are less than the specified maxNumberOfChunks, taking into account the maxNumberOfChars, false otherwise
      */
     public boolean loadMessage(String message)
+
+    //load the entire message for further processing and compute the required number of chunks
+    //if the message is too big (i.e. contains to many characters) the function returns false
+
     {
         //TODO die Berechnung von requiredNumberOfChunks berücksichtigt nicht die characters die für die positionsnummer verbraucht werden
         this.message = message;
         double length = this.message.length(); //counts characters including white spaces
+
+
         this.requiredNumberOfChunks = (int) Math.ceil(length / (double) this.maxNumberOfChars);
 
         //debug
@@ -60,15 +70,18 @@ public class MessageSplittingHandler
         return (this.requiredNumberOfChunks <= this.maxNumberOfChunks);
     }
 
+
     /**
      *
      * @return the number of chunks required to split the message that was previously loaded into the class object
      */
+
     public int getRequiredNumberOfChunks()
     // return the computed number if chunks required to send the entire message
     {
         return requiredNumberOfChunks;
     }
+
 
     /**
      * splits the previously loaded message into chunks and returns the chunk at position position
@@ -77,6 +90,7 @@ public class MessageSplittingHandler
      * @return a single String that
      */
     public String getMessageChunkAtPosition(int position, boolean addPositionNumber)
+
     // returns a substring of the original message together with the positionNumber
     // position refers to the index: 0 <= position < requiredNumberOfChunks;
     {
@@ -93,6 +107,7 @@ public class MessageSplittingHandler
         int positionNumber = computeQRPositionNumber(new int[]{this.requiredNumberOfChunks, position + 1});
 
         Log.i("MessageSplittingHandler - final Chunks ", chunkString + " ... i:" + position);
+
 
         if (addPositionNumber == true){
             //TODO (lux) hier habe ich rumgepfuscht noch schön maxhen

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">helio</string>
+    <string name="total_number_of_qr_codes_n_scanned_number_of_qr_codes">Total number of QR-Codes: --\n Scanned number of QR-Codes: --</string>
+    <string name="scan_the_message_code">Scan the message code!</string>
 </resources>
