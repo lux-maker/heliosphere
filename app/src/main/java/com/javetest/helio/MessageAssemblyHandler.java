@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.google.zxing.common.StringUtils;
 
+
+
 /**
     class assembles messages from single message chunks
     -> it reads and extracts the position number from every chunk
@@ -25,6 +27,7 @@ public class MessageAssemblyHandler
     {
         if (this.firstChunk) //then this function is called for the first time since the instance of this class was created
         {
+            //TODO what if a public key is laoded? throw exception?
             //extract the total number of chunks and initialize the string message chunk array to null
             this.totalNumberOfChunks = extractPositionNumberTuple(messageChunk)[0];
             messageChunks = new String[this.totalNumberOfChunks];

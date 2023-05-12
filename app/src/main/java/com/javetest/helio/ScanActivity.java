@@ -8,12 +8,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.zxing.Result;
+
+import org.w3c.dom.Text;
 
 import java.util.Objects;
 
@@ -36,6 +39,8 @@ public class ScanActivity extends AppCompatActivity {
 
     MessageAssemblyHandler messageAssemblyHandler = new MessageAssemblyHandler();
     String redirectionInfo;
+    TextView textView;
+    Intent intent;
 
 
     @Override
@@ -43,12 +48,15 @@ public class ScanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activity_scan); //created by default
 
+        textView = (TextView)findViewById(R.id.textView7);
+
         //fetch the current intent and check where it was created
         Intent intent_extra = getIntent();
         redirectionInfo = intent_extra.getStringExtra("redirection"); //übergebener Text, der spezifiziert, wohin die Nachricht aus dem QR Code gehen soll
 
         //if redirectionInfo is null, throw error
         if (redirectionInfo == null) {Log.e("ScanActivity onCreate", "Intent String 'redirection' is null");}
+
         //zurück button initialisieren
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
@@ -63,8 +71,6 @@ public class ScanActivity extends AppCompatActivity {
             {
                 //this method is called after QR code is decoded -> decoded message contained in result
 
-                Intent intent;
-
                 //check the redirection information to choose a proper handling
                 if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) {
                     //start the KeyExchangeSavePublicKeyActivty to save the public key
@@ -72,13 +78,15 @@ public class ScanActivity extends AppCompatActivity {
                     intent.putExtra("encryptedMessage", result.getText());
                     startActivity(intent);
                     ScanActivity.this.finish();
-                    return;
                 }
                 else if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
                     // the result contains a message chunk. save it in MessageAssemblyHandler
                     boolean allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
 
-                    //TODO popup window with decoding information (how many are left to scan)
+                    //update the information
+                    String infoTextViewContent = "Total number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getTotalNumberOfChunks()) + "\n Missing number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getNumberOfMissingChunks());
+                    textView.setText(infoTextViewContent);
+
                     if (allChunksLoaded)
                     {
                         //send the RSA blocks to the decryption activity
@@ -86,11 +94,10 @@ public class ScanActivity extends AppCompatActivity {
                         String rsaBlocksJson = GsonHelper.toJson(rsaBlocks);
 
                         intent = new Intent(ScanActivity.this, DecryptEnterPasswordActivity.class);
-                        intent.putExtra("encryptedMessae", rsaBlocksJson);
+                        intent.putExtra("encryptedMessage", rsaBlocksJson);
                         startActivity(intent);
                         ScanActivity.this.finish();
                     }
-
                 }
                 else
                 {
@@ -126,11 +133,11 @@ public class ScanActivity extends AppCompatActivity {
 
 
                 //Auswahl zur Weiterleitung basierend auf der Herkunft des INTENTS
-                if (redirection.equals("DecryptEnterPasswordActivity")) {
+                if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
                     //start the DecryptEnterPasswordActivity to start decryption displaying of the message and
                     intent = new Intent(ScanActivity.this, MainActivity.class);
                 }
-                if (redirection.equals("KeyExchangeSavePublicKeyActivty")) {
+                if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) {
                     //start the KeyExchangeSavePublicKeyActivty to save the public key
                     intent = new Intent(ScanActivity.this, KeyExchangeDecisionActivity.class);
                 }
