@@ -3,6 +3,8 @@ package com.javetest.helio;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,8 +56,9 @@ public class ScanActivity extends AppCompatActivity {
         Intent intent_extra = getIntent();
         redirectionInfo = intent_extra.getStringExtra("redirection"); //übergebener Text, der spezifiziert, wohin die Nachricht aus dem QR Code gehen soll
 
-        //if redirectionInfo is null, throw error
+        //if redirectionInfo is null, throw error, if the activity is called to scan a key, disbale the buttom textview by displaying an empty string
         if (redirectionInfo == null) {Log.e("ScanActivity onCreate", "Intent String 'redirection' is null");}
+        else if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) textView.setText(" ");
 
         //zurück button initialisieren
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -71,6 +74,9 @@ public class ScanActivity extends AppCompatActivity {
             {
                 //this method is called after QR code is decoded -> decoded message contained in result
 
+                //check out the current activation to be able to run tasks on the UI thread later (rendering and view modifiations)
+                Activity currentActivity = (Activity) getApplicationContext();
+
                 //check the redirection information to choose a proper handling
                 if (redirectionInfo.equals("KeyExchangeSavePublicKeyActivty")) {
                     //start the KeyExchangeSavePublicKeyActivty to save the public key
@@ -81,11 +87,35 @@ public class ScanActivity extends AppCompatActivity {
                 }
                 else if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
                     // the result contains a message chunk. save it in MessageAssemblyHandler
-                    boolean allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
+
+                    boolean allChunksLoaded = false;
+
+                    //check if the scan is ok
+                    try
+                    {
+                        allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
+                    } catch (IllegibleScanException e)
+                    {
+                        currentActivity.runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                Toast.makeText(currentActivity, "The QR-Code could not be decoded. Make sure that the QR-Code contains a Heliosphere message chunk and is legible.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
 
                     //update the information
                     String infoTextViewContent = "Total number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getTotalNumberOfChunks()) + "\n Missing number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getNumberOfMissingChunks());
-                    textView.setText(infoTextViewContent);
+                    currentActivity.runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            textView.setText(infoTextViewContent);
+                        }
+                    });
 
                     if (allChunksLoaded)
                     {
@@ -99,7 +129,7 @@ public class ScanActivity extends AppCompatActivity {
                         ScanActivity.this.finish();
                     }
                 }
-                else
+                else //if the redirection information is unknown, log an error
                 {
                     Log.e("ScanActivity onDecode","The intent contains an unknown redirection information.");
                 }

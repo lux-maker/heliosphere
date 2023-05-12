@@ -23,20 +23,34 @@ public class MessageAssemblyHandler
      * @param messageChunk a concatenation of the position number and the actual message chunk
      * @return true if the laoded messageChunk is the last one to assemble the entire message, otherwise falls
      */
-    public boolean loadMessageChunk(String messageChunk)
-    {
+    public boolean loadMessageChunk(String messageChunk) throws IllegibleScanException {
         if (this.firstChunk) //then this function is called for the first time since the instance of this class was created
         {
             //TODO what if a public key is laoded? throw exception?
             //extract the total number of chunks and initialize the string message chunk array to null
             this.totalNumberOfChunks = extractPositionNumberTuple(messageChunk)[0];
+
+            if (this.totalNumberOfChunks < 1 || this.totalNumberOfChunks > 13)
+            {
+                throw new IllegibleScanException("total number of chunks is invalid");
+            }
+
             messageChunks = new String[this.totalNumberOfChunks];
             this.firstChunk = false;
         }
 
-        int currentPosition = extractPositionNumberTuple(messageChunk)[1];
+        int currentPosition = extractPositionNumberTuple(messageChunk)[1] - 1; //index is required not position
+        Log.i("MessageAssemblyHandler", "current position: " + Integer.toString(currentPosition));
+        Log.i("MessageAssemblyHandler", "total Number of Chunks: " + totalNumberOfChunks);
+        Log.i("MessageAssemblyHandler", "position number " + messageChunk.substring(0,2));
         this.messageChunks[currentPosition] = extractMessage(messageChunk);
 
+        int i = 0;
+        for (String chunk : messageChunks)
+        {
+            Log.i("MessageAssemblyHandler", Integer.toString(i) + chunk);
+            i++;
+        }
         return this.allChunksLoaded();
     }
 
@@ -86,7 +100,7 @@ public class MessageAssemblyHandler
 
         //TODO folgende Zeilen debugen
         int totalNumberOfChunks = (int) Math.ceil(-0.5 + Math.sqrt(0.25 + positionNumber * 2.0));
-        int currentPosition = (((totalNumberOfChunks + 1) * totalNumberOfChunks) / 2) - positionNumber;
+        int currentPosition = totalNumberOfChunks - ((((totalNumberOfChunks + 1) * totalNumberOfChunks) / 2) - positionNumber);
 
         return new int[]{totalNumberOfChunks, currentPosition};
     }
