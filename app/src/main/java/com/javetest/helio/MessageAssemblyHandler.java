@@ -65,15 +65,27 @@ public class MessageAssemblyHandler
         // TODO soll diese methode nur funktionieren wenn alle chunks geladen wurden?
         if (!this.allChunksLoaded())
         {
+            //TODO exception thrown
             Log.w("MessageAssemblyHandler.getRSABlocks", "RSA blocks were requested but not all message chunks have been loaded yet");
             return new String[1];
         }
 
         // transform the array that holds the message chunks into one single String
-        String entireMessage = this.messageChunks.toString();
+
+        String entireMessage = new String("");
+
+        for (String chunk : this.messageChunks)
+        {
+            entireMessage = entireMessage + chunk;
+        }
 
         //RSA blocks end with "==\n" zumindest glauben wir das grade sollte eventuell nochmal gecheckt werden lol
         String[] rsaBlocks = entireMessage.split("==\n"); //die funktion String.split() gibt die Strings zurück ohne das matching pattern.
+
+        for (int i = 0; i < rsaBlocks.length; i++)
+        {
+            rsaBlocks[i] = rsaBlocks[i] + "==\n";
+        }
         return rsaBlocks;
     }
 

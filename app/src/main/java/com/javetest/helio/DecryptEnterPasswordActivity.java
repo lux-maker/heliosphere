@@ -149,7 +149,7 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
     //Achtung das GUI wechselt: activity_decrypt_enter_password.xml -> encodedmessage_dialog.xml
     void showCustomDialog(String clearMessage)
     {
-        Log.i("KeyListActivity", clearMessage);
+        Log.i("DecryptedEnterPasswordAcitivity - show dialog", clearMessage);
 
         //erzeuge neues Dialog-Fenster (Objekt):
         dialog = new Dialog(DecryptEnterPasswordActivity.this);
