@@ -6,9 +6,9 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/publickey"
+        android:id="@+id/qrStatusText"
         android:layout_width="216dp"
-        android:layout_height="27dp"
+        android:layout_height="40dp"
         android:layout_marginStart="97dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="98dp"
@@ -25,7 +25,7 @@
         android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/publickey" />
+        app:layout_constraintTop_toBottomOf="@+id/qrStatusText" />
 
     <Button
         android:id="@+id/close_button"

@@ -52,11 +52,8 @@ public class MessageSplittingHandler
         this.requiredNumberOfJunks = (int) Math.ceil(length / (double) this.maxNumberOfChars);
 
         //debug
-        Log.i("MessageSplittingHandler - message",message);
         Log.i("MessageSplittingHandler - this.message",this.message);
-        Log.i("MessageSplittingHandler - this.message",message.length()+"");
         Log.i("MessageSplittingHandler - this.message",this.message.length()+"");
-        Log.i("MessageSplittingHandler - message.length ",length +"");
         Log.i("MessageSplittingHandler - Junks ", requiredNumberOfJunks + "");
 
         // if the message can be separated into at most maxNumberOfJunks junks, return true, otherwise return false
