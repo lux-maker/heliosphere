@@ -21,6 +21,12 @@ public class MessageSplittingHandler
     private int requiredNumberOfJunks = -1; // after the message is loaded, this variable will contain the number of junks needed to send this message
 
     //define the class constructor and overload it with two different argument lists
+
+    /**
+     * constructor, overloaded
+     * @param maxNumberOfJunks maximum number of Junks per message
+     * @param maxNumberOfChars maximum number of characters per junk
+     */
     public MessageSplittingHandler(int maxNumberOfJunks, int maxNumberOfChars)
     {
         //if the numbers are specified, use them
@@ -28,11 +34,17 @@ public class MessageSplittingHandler
         this.maxNumberOfChars = maxNumberOfChars;
     };
 
+    /**
+     * default constructor
+     */
     public MessageSplittingHandler() {}; //if the default constructor is called, use the values defined in this class
 
+    /**
+     * loads the entire message for further processing and computes the required number of junks
+     * @param message String that contains the message that is supposed to be splitted in one piece
+     * @return true if the message can be splitted into number of junks that are less than the specified maxNumberOfJunks, taking into account the maxNumberOfChars, false otherwise
+     */
     public boolean loadMessage(String message)
-    //load the entire message for further processing and compute the required number of junks
-    //if the message is too big (i.e. contains to many characters) the function returns false
     {
         //TODO die Berechnung von requiredNumberOfJunks berücksichtigt nicht die characters die für die positionsnummer verbraucht werden
         this.message = message;
@@ -49,15 +61,24 @@ public class MessageSplittingHandler
 
         // if the message can be separated into at most maxNumberOfJunks junks, return true, otherwise return false
         return (this.requiredNumberOfJunks <= this.maxNumberOfJunks);
-
     }
 
+    /**
+     *
+     * @return the number of junks required to split the message that was previously loaded into the class object
+     */
     public int getRequiredNumberOfJunks()
     // return the computed number if junks required to send the entire message
     {
         return requiredNumberOfJunks;
     }
 
+    /**
+     * splits the previously loaded message into junks and returns the junk at position position
+     * @param position position of requested junk
+     * @param addPositionNumber if true, the piece of the message will be concatenated with a to digit integers containing information about the positioning of the junk within the message
+     * @return a single String that
+     */
     public String getMessageJunkAtPosition(int position, boolean addPositionNumber)
     // returns a substring of the original message together with the positionNumber
     // position refers to the index: 0 <= position < requiredNumberOfJunks;
