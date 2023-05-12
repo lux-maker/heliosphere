@@ -117,6 +117,7 @@ public static int computeQRPosition(int[] positionTuple)
 }
 
 ```
+* maximale Char größe RSA block: 255 chars
 ## Konzept: fatal Error / Critical Vulnerability Detection (CVD)
 * Sicherheitskonzept 
 * Wir können in unserer Codes immer mal Sanity checks einbauen. 
