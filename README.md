@@ -118,6 +118,10 @@ public static int computeQRPosition(int[] positionTuple)
 
 ```
 * maximale Char größe RSA block: 255 chars
+* In einem QR Code passen ca. 1,5 RSA blöcke 
+* 13 QR Codes -> 20 Chunks von RSA blöcken
+
+
 ## Konzept: fatal Error / Critical Vulnerability Detection (CVD)
 * Sicherheitskonzept 
 * Wir können in unserer Codes immer mal Sanity checks einbauen. 
