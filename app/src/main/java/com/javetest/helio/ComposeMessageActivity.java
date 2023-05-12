@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * generelle Infos:
@@ -39,6 +40,17 @@ public class ComposeMessageActivity extends AppCompatActivity {
             public void onClick(View view) //when clicked: speichert die Message und startet KeyList Activity und übergibt den eingegeben Text mit
             {
                 String message = composedMessage.getText().toString();
+
+                //+++++++++++message splitting Test+++++++++++
+                //überprüfen, ob der Text zu lang für die RSA blöcke und QR Codes ist
+                MessageSplittingHandler messageSplittingHandler = new MessageSplittingHandler(20, 255); //use the values (maxNumberOfChunks = 20 /chars = 255) of the class
+
+                //Fehlermeldung, wenn der Text zu lang ist:
+                if (messageSplittingHandler.loadMessage(message) == false){
+                    Toast.makeText(ComposeMessageActivity.this, "Text too long. Please cut and try again", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Intent intent = new Intent(ComposeMessageActivity.this, KeyListActivity.class);
                 intent.putExtra("clearMessage", message);
                 startActivity(intent);
