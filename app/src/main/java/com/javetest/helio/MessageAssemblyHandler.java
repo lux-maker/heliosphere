@@ -23,7 +23,7 @@ public class MessageAssemblyHandler
      * @param messageChunk a concatenation of the position number and the actual message chunk
      * @return true if the laoded messageChunk is the last one to assemble the entire message, otherwise falls
      */
-    public boolean loadMessageChunk(String messageChunk) throws IllegibleScanException {
+    public boolean loadMessageChunk(String messageChunk) throws IllegibleScanException, DoubleScanException {
 
         if (this.firstChunk) //then this function is called for the first time since the instance of this class was created
         {
@@ -37,12 +37,16 @@ public class MessageAssemblyHandler
 
         if (this.chunkIsValid(positionNumbers)) //checking whether the position numbers can be extracted properly from the message chunk
         {
+            //check weather the chunk was loaded before
+            if (this.messageChunks[positionNumbers[1] - 1] != null) throw new DoubleScanException("The chunk at position " + Integer.toString(positionNumbers[1]) + "was already loaded");
+
             //add the message chunk to the right position
+
             this.messageChunks[positionNumbers[1] - 1] = extractMessage(messageChunk);
         }
         else
         {
-            throw new IllegibleScanException("position numbers could not be extracted from WR code");
+            throw new IllegibleScanException("position numbers could not be extracted from QR code");
         }
         this.firstChunk = false;
         return this.allChunksLoaded();

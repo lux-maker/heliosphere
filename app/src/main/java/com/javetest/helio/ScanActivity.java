@@ -94,26 +94,15 @@ public class ScanActivity extends AppCompatActivity {
                     allChunksLoaded = messageAssemblyHandler.loadMessageChunk(result.getText());
                 } catch (IllegibleScanException e)
                 {
-                    ScanActivity.this.runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            Toast.makeText(ScanActivity.this, "The QR-Code could not be decoded. Make sure that the QR-Code contains a Heliosphere message chunk and is legible.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    ScanActivity.this.runOnUiThread(() -> Toast.makeText(ScanActivity.this, "The QR-Code could not be decoded. Make sure that the QR-Code contains a Heliosphere message chunk and is legible.", Toast.LENGTH_SHORT).show());
+                } catch (DoubleScanException e)
+                {
+                    ScanActivity.this.runOnUiThread(() -> Toast.makeText(ScanActivity.this, "This QR code was already scanned before", Toast.LENGTH_SHORT).show());
                 }
 
-                //update the information
+                //update the information text on screen
                 String infoTextViewContent = "Total number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getTotalNumberOfChunks()) + "\n Missing number of QR-Codes: " + Integer.toString(messageAssemblyHandler.getNumberOfMissingChunks());
-                ScanActivity.this.runOnUiThread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        textView.setText(infoTextViewContent);
-                    }
-                });
+                ScanActivity.this.runOnUiThread(() -> textView.setText(infoTextViewContent));
 
                 if (allChunksLoaded)
                 {
