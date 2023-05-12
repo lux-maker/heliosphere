@@ -53,7 +53,7 @@ public class MessageSplittingHandler
 
         //debug
         Log.i("MessageSplittingHandler - this.message",this.message);
-        Log.i("MessageSplittingHandler - this.message",this.message.length()+"");
+        Log.i("MessageSplittingHandler - this.message.length",this.message.length()+"");
         Log.i("MessageSplittingHandler - Junks ", requiredNumberOfJunks + "");
 
         // if the message can be separated into at most maxNumberOfJunks junks, return true, otherwise return false
@@ -81,7 +81,7 @@ public class MessageSplittingHandler
     // position refers to the index: 0 <= position < requiredNumberOfJunks;
     {
 
-        //TODO debug and validate
+
         //check if position is within the possible interval, otherwise return null
         if (position >= this.requiredNumberOfJunks) return null;
 

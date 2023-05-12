@@ -115,7 +115,8 @@ public class KeyListActivity extends AppCompatActivity {
 
                 //+++++++++++message splitting+++++++++++
                 //Message splitting for multi QR-codes
-                MessageSplittingHandler messageSplittingHandler = new MessageSplittingHandler(50, 20); //use the values (maxNumberOfJunks = 13 /chars = 300) of the class //TODO genaue Char anzahl für max RSA block herausfinden
+                //TODO überlegen, was passiert wenn der loadMessage false zurück gibt.
+                MessageSplittingHandler messageSplittingHandler = new MessageSplittingHandler(50, 200); //use the values (maxNumberOfJunks = 13 /chars = 300) of the class //TODO genaue Char anzahl für max RSA block herausfinden
                 messageSplittingHandler.loadMessage(clearMessage);
                 int requiredNumberOfJunks = messageSplittingHandler.getRequiredNumberOfJunks();
                 //debug
@@ -228,7 +229,7 @@ public class KeyListActivity extends AppCompatActivity {
             imageCode.setImageBitmap(bitmap);//Setting generated QR code to imageView
 
 
-            qrStatusText.setText("encrypted and encoded message\n QR-Code " + Integer.toString(qrindex+1) +" out of " + Integer.toString(messageSplittingHandler.getRequiredNumberOfJunks()-1));
+            qrStatusText.setText("encrypted and encoded message\n QR-Code " + Integer.toString(qrindex+1) +" out of " + messageSplittingHandler.getRequiredNumberOfJunks());
 
         } catch (Exception e) {
             e.printStackTrace();
