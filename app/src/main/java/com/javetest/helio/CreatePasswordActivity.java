@@ -96,6 +96,9 @@ public class CreatePasswordActivity extends AppCompatActivity {
                         String jsonPrivate = GsonHelper.toJson(privateKeyEncrypted);
                         editor.putString("RSAPrivate", jsonPrivate); //privater Schlüssel verschlüsselt mit App-PW
 
+                        //store the number of failed attempts in memory
+                        editor.putString("failedAccessAttempts", "0");
+
                         // apply changes to shared preferences
                         editor.apply();
 
