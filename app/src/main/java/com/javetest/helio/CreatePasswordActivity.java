@@ -72,9 +72,9 @@ public class CreatePasswordActivity extends AppCompatActivity {
                     if (enteredPW.equals(enteredPWRepeat)) // update the new password in the preferences
                     {
                         //auslagern in externen Thread
-                        Thread thread = new Thread(runnable);
-                        thread.start();
-                        setContentView(R.layout.activity_first_acess_decision_acitivty);
+                        Thread calculationThread = new Thread(setpw);
+                        calculationThread.start();
+                        setContentView(R.layout.activity_first_acess_decision_acitivty); //show lade... screen
 
                     }
                     else //passwords do not match -> pop up message
@@ -86,7 +86,7 @@ public class CreatePasswordActivity extends AppCompatActivity {
         });
     }
 
-    Runnable runnable = new Runnable(){
+    Runnable setpw = new Runnable(){
 
         public void run() {
 

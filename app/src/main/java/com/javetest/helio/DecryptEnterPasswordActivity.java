@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.security.crypto.MasterKey;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -58,7 +59,8 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
 
     Dialog dialog;
 
-    Handler mHandler;
+    String encryptedMessage;
+    String assembledClearMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,26 +97,9 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
             public void onClick(View view) //when clicked: hash pw, vergleiche Hash-Wert mit App-PW-Hash-Wert. Richtiges PW: entschlüsseln der Nachricht und übergeben an showCustomDialog()
             {
 
-                // Set this up in the UI thread.
-
-                mHandler = new Handler(Looper.getMainLooper()) {
-                    @Override
-                    public void handleMessage(Message message) {
-
-                        if (message.what == 0){
-                            Toast.makeText(DecryptEnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show();
-                        }
-                        if (message.what == 1){
-
-                            //setContentView(R.layout.activity_decrypt_enter_password); //ziege wieder das ursprüngliche GUI an
-                            Toast.makeText(DecryptEnterPasswordActivity.this, "Wrong password. " + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                };
-
                 //auslagern in externen Thread
-                Thread thread = new Thread(runnable);
-                thread.start();
+                Thread calculationThread = new Thread(pwcheck);
+                calculationThread.start();
                 setContentView(R.layout.activity_first_acess_decision_acitivty); //zeige den lade... screen
 
             }
@@ -158,13 +143,16 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
         });
     }
 
-    Runnable runnable = new Runnable() {
+    Runnable pwcheck = new Runnable() {
 
         public void run() {
 
             //hash entered password
             String p = enteredPW.getText().toString();
             HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), p.toCharArray());
+
+            //load encrypted message json from Intent
+            encryptedMessage = getIntent().getStringExtra("encryptedMessage");
 
             //compare passwords
             if (hashedPasswordInfo.equals(enteredHashedPasswordInfo))
@@ -187,8 +175,6 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                     Log.e("DecryptEnterPasswordActivity", "RSA key decoding failure", e);
                 }
 
-                //load encrypted message json from Intent
-                String encryptedMessage = getIntent().getStringExtra("encryptedMessage");
 
                 //parse the json string into a String array
 
@@ -201,7 +187,7 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                     i++;
                 }
 
-                String assembledClearMessage = "";
+                assembledClearMessage = "";
 
                 //iterate through all rsa blocks and decrypt them one by one
                 for (String rsaBlock : rsaBlocks)
@@ -211,11 +197,12 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 }
 
                 //display the message
-                showCustomDialog(assembledClearMessage);
+                //lamda Ausdruck, weil das Dialog feld als Teil des GUIs nicht vom externen Thread angesprochen werden kann. Deswegen wird damit der Befehl über den Main Thread ausgeführt.
+                DecryptEnterPasswordActivity.this.runOnUiThread(() -> showCustomDialog(assembledClearMessage));
             }
             else
             {
-                int failedAttempts = PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext());
+                int failedAttempts = PasswordAttemptsHandler.getCurrentFailedAttemptsCounter(getApplicationContext());
                 ++failedAttempts;
 
                 PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), failedAttempts);
@@ -225,17 +212,23 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 {
                     TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
                     totalAnnilihator.clearAll(getApplicationContext());
-                    //Toast.makeText(DecryptEnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show();
-                    Message message = mHandler.obtainMessage(0);
-                    message.sendToTarget();
 
+                    //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
+                    DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show());
+                    
                     Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
                     startActivity(intent);
                     finish();
                 }
-                //Toast.makeText(DecryptEnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
-                Message message = mHandler.obtainMessage(1);
-                message.sendToTarget();
+
+                //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
+                DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show());
+
+                Intent intent = new Intent(DecryptEnterPasswordActivity.this, DecryptEnterPasswordActivity.class); //starte erneut die selbe Activity zur erneuten PW eingabe
+                intent.putExtra("encryptedMessage", encryptedMessage);
+                startActivity(intent);
+                return;
+
             }
 
         }

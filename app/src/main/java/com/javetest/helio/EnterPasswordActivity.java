@@ -1,6 +1,8 @@
 package com.javetest.helio;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,8 +38,6 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
     String enteredPassword = null;
 
-    Handler mHandler;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
@@ -59,31 +59,17 @@ public class EnterPasswordActivity extends AppCompatActivity {
             }
             else {
 
-                // Set this up in the UI thread.
-
-                mHandler = new Handler(Looper.getMainLooper()) {
-                    @Override
-                    public void handleMessage(Message message) {
-
-                        if (message.what == 0){
-                            Toast.makeText(EnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
-                        }
-                        if (message.what == 1){
-                            Toast.makeText(EnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                };
-
-                Thread thread = new Thread(runnable);
-                thread.start();
-                setContentView(R.layout.activity_first_acess_decision_acitivty);
+                //auslagern in externen Thread:
+                Thread calculationThread= new Thread(comparepw);
+                calculationThread.start();
+                setContentView(R.layout.activity_first_acess_decision_acitivty); //show lade... screen
 
 
             }
         });
     }
 
-    Runnable runnable = new Runnable(){
+    Runnable comparepw = new Runnable(){
 
         public void run() {
 
@@ -129,9 +115,9 @@ public class EnterPasswordActivity extends AppCompatActivity {
                 {
                     TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
                     totalAnnilihator.clearAll(getApplicationContext());
-                    //Toast.makeText(EnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show();
-                    Message message = mHandler.obtainMessage(1);
-                    message.sendToTarget();
+
+                    //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
+                    EnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(EnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show());
 
                     Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
                     startActivity(intent);
@@ -140,12 +126,10 @@ public class EnterPasswordActivity extends AppCompatActivity {
                 }
                 else
                 {
+                    //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
+                    EnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(EnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show());
 
-                    //Toast.makeText(EnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
-                    Message message = mHandler.obtainMessage(0);
-                    message.sendToTarget();
-
-                    Intent intent = new Intent(getApplicationContext(), EnterPasswordActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), EnterPasswordActivity.class); //starte erneut die selbe Activity zur erneuten PW eingabe
                     startActivity(intent);
                     finish();
                     return;
