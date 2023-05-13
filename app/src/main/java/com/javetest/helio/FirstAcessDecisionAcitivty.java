@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.content.Intent;
 import android.os.Handler;
+import android.util.Log;
+
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
@@ -36,6 +38,17 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activity_first_acess_decision_acitivty); //created by default
+
+        //perform sanity checks connectivity
+        SanityChecks sanityChecks = new SanityChecks();
+        boolean checksAreOK = sanityChecks.wifi(getApplicationContext(), FirstAcessDecisionAcitivty.this);
+
+        if (!checksAreOK)
+        {
+            //close the application
+            finish();
+            return;
+        }
 
         //load SharedPreferences from memory and check if it already contains a password, otherwise define one
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext()); //enthält neu erzeugten neuen master key, den es braucht um jetzt gleich die verschlüsselten sharedPreferences zu öffnen //MasterKey: Wrapper-class, references a key that's stored in the Android Keystore //context: in order to access the stored preferences
@@ -66,6 +79,5 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
         //run handler
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(r, 2000);
-
     }
 }
