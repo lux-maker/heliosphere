@@ -2,4 +2,9 @@
     <string name="app_name">helio</string>
     <string name="total_number_of_qr_codes_n_scanned_number_of_qr_codes">Total number of QR-Codes: --\n Scanned number of QR-Codes: --</string>
     <string name="scan_the_message_code">Scan the message code!</string>
+    <string name="panic">PANIC</string>
+    <string name="scan_key">scan key</string>
+    <string name="compose_and_encrypt_message">Compose and Encrypt message</string>
+    <string name="scan_and_decrypt_message">Scan and decrypt message</string>
+    <string name="choose_an_action">Choose an action:</string>
 </resources>

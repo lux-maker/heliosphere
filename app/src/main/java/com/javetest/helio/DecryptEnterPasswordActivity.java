@@ -96,6 +96,9 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 //compare passwords
                 if (hashedPasswordInfo.equals(enteredHashedPasswordInfo))
                 {
+                    //reset failedAttempts
+                    PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), 0);
+
                     //passwords match -> start to decrypt message
                     Log.i("DecryptEnterPasswordActivity", "passwords match");
 
@@ -125,7 +128,7 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                         i++;
                     }
 
-                    String assembledClearMessage = new String("");
+                    String assembledClearMessage = "";
 
                     //iterate through all rsa blocks and decrypt them one by one
                     for (String rsaBlock : rsaBlocks)
@@ -139,7 +142,23 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Toast.makeText(DecryptEnterPasswordActivity.this, "Wrong password", Toast.LENGTH_SHORT).show();
+                    int failedAttempts = PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext());
+                    ++failedAttempts;
+
+                    PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), failedAttempts);
+
+                    //check if the maximum number if attempts is reached and dekete everything if so
+                    if (failedAttempts >= PasswordAttemptsHandler.getMaxAllowedNumOfFailedAttempts())
+                    {
+                        TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
+                        totalAnnilihator.clearAll(getApplicationContext());
+                        Toast.makeText(DecryptEnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show();
+
+                        Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                    Toast.makeText(DecryptEnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
                 }
             }
         });

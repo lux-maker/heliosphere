@@ -41,44 +41,66 @@ public class EnterPasswordActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.button2); //objekt, was sich auf den "ENTER" button aus dem GUI bezieht
 
         //implement a Callable for a "ENTER" button click
-        button.setOnClickListener(new View.OnClickListener()
+        button.setOnClickListener((View view) ->
         {
             //when "ENTER" button clicked: speichere die Eingabe, lade den Hash-Wert und den Salt des APP-PWs, hashe das eingegebene PW mit dem geladenen Salt und vergleiche
             //die Hash-Werte. Wenn gleich, dann starte Main Activity sonst zeige eine Fehlermeldung an.
-            @Override
-            public void onClick(View view)
+            String enteredPassword = enteredPW.getText().toString();
+            if(enteredPassword.equals(""))
             {
-                String enteredPassword = enteredPW.getText().toString();
-                if(enteredPassword.equals(""))
+                Toast.makeText(EnterPasswordActivity.this, "please type in password", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                //load hashed password from memory
+                MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
+                SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
+
+                //reorganize the hashed password from memory, log error if password doesn't exists yet (shouldn't ever happen at this point
+                String string = settings.getString("hashedPWInfo", "");
+                if (string.equals(""))
                 {
-                    Toast.makeText(EnterPasswordActivity.this, "please type in password", Toast.LENGTH_SHORT).show();
+                    Log.e("EnterPasswordActivity", "hashed password loading failure");
                 }
-                else {
-                    //load hashed password from memory
-                    MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-                    SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
 
-                    //reorganize the hashed password from memory, log error if password doesn't exists yet (shouldn't ever happen at this point
-                    String string = settings.getString("hashedPWInfo", "");
-                    if (string.equals(""))
+                HashedPasswordInfo hashedPasswordInfo = GsonHelper.String2HashedPWInfo(string);
+
+                //hash the newly entered password by reusing the salt from the trueHashedPassword
+                HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), enteredPassword.toCharArray());
+
+                // compare hashes with overwritten equals ("==") operator
+                if (hashedPasswordInfo.equals(enteredHashedPasswordInfo)) //hashedPasswordInfo = eingegebenes PW // trueHashedPasswordInfo = tatsächliches PW-Passwort
+                {
+                    //reset failedAttempts tp 0
+                    PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), 0);
+
+                    //start the main application
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                else
+                { //entered passwort is not the correct password
+
+                    //load the failed attempts from memory and increment it
+                    int failedAttempts = PasswordAttemptsHandler.getCurrentFailedAttemptsCounter(getApplicationContext());
+                    ++failedAttempts;
+
+                    PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), failedAttempts);
+
+                    //check if the maximum number of attempts is reached and delete everything if so
+                    if (failedAttempts >= PasswordAttemptsHandler.getMaxAllowedNumOfFailedAttempts())
                     {
-                        Log.e("EnterPasswordActivity", "hashed password loading failure");
-                    }
+                        TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
+                        totalAnnilihator.clearAll(getApplicationContext());
+                        Toast.makeText(EnterPasswordActivity.this, "Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show();
 
-                    HashedPasswordInfo hashedPasswordInfo = GsonHelper.String2HashedPWInfo(string);
-
-                    //hash the newly entered password by reusing the salt from the trueHashedPassword
-                    HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), enteredPassword.toCharArray());
-
-                    // compare hashes with overwritten equals ("==") operator
-                    if (hashedPasswordInfo.equals(enteredHashedPasswordInfo)) //hashedPasswordInfo = eingegebenes PW // trueHashedPasswordInfo = tatsächliches PW-Passwort
-                    {
-                        //start the main application
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
                         startActivity(intent);
                         finish();
-                    } else {
-                        Toast.makeText(EnterPasswordActivity.this, "Wrong password", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(EnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
                     }
                 }
             }

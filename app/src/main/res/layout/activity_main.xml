@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -47,7 +48,16 @@
             android:layout_marginTop="40dp"
             android:text="scan key"
             />
+      
+        <Button
+            android:id="@+id/button6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="@string/panic"
+            />
 
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
