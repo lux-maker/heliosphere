@@ -52,8 +52,7 @@ public class KeyListActivity extends AppCompatActivity {
     ListView listView;
     String clearMessage;
     PublicKey publicKey = null;
-    Dialog dialog;
-
+    int runde = 0; //qr index
     int width;
     MessageSplittingHandler messageSplittingHandler;
 
@@ -156,6 +155,8 @@ public class KeyListActivity extends AppCompatActivity {
         TextView qrStatusText = (TextView) findViewById(R.id.qrStatusText); // Bezieht sich auf Textfeld im GUI, dort soll: encyrpted and encoded message /n 1 von 3 angeziegt werden
         Button closeButton = (Button) findViewById(R.id.close_button); // Objekt bezieht sich auf "CLOSE CODE AND MESSAGE" button im GUI
         Button nextqrButton = (Button) findViewById(R.id.nextqr_button); // Objekt bezieht sich auf "next QR Button" button im GUI
+        Button previousqrButton = (Button) findViewById(R.id.previousqr_code); // Objekt bezieht sich auf "previous QR Button" button im GUI
+
 
         //Herausbekommen der Breite des Bildschirms für den QR-Code
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -175,23 +176,41 @@ public class KeyListActivity extends AppCompatActivity {
         //zeige den ersten QR-Code an:
         showQRCode(0, imageCode, qrStatusText);
 
+        //zeige nächsten QR Code an:
         nextqrButton.setOnClickListener(new View.OnClickListener() {
-            int runde = 1;
+
             public void onClick(View view) {
 
-                if (runde < messageSplittingHandler.getRequiredNumberOfChunks()){
+                if (runde < (messageSplittingHandler.getRequiredNumberOfChunks()-1)){
 
+                    ++runde; //springe einen QR Code weiter
                     showQRCode(runde, imageCode, qrStatusText); //zeige den QR-Code mit dem jeweiligen Chunk an
-                    runde++; //springe einen QR Code weiter fürs nächste mal klicken
 
                 } else {
-                    Toast.makeText(KeyListActivity.this, "Alle QR Codes durch", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(KeyListActivity.this, "all QR Codes shown", Toast.LENGTH_SHORT).show();
 
                 }
-
-
             }
         });
+
+
+        //zeige vorherigen QR Code an:
+        previousqrButton.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+
+                if (runde >= 1){
+
+                    --runde; //zeige vorherigen QR Code
+                    showQRCode(runde, imageCode, qrStatusText); //zeige den QR-Code mit dem jeweiligen Chunk an
+
+                } else {
+                    Toast.makeText(KeyListActivity.this, "first QR code already shown", Toast.LENGTH_SHORT).show();
+
+                }
+            }
+        });
+
 
         //implement a Callable for a "CLOSE CODE AND MESSAGE" button click
         closeButton.setOnClickListener(new View.OnClickListener()
