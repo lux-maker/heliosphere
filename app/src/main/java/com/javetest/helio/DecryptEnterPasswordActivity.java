@@ -192,8 +192,21 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 //iterate through all rsa blocks and decrypt them one by one
                 for (String rsaBlock : rsaBlocks)
                 {
-                    byte[] clearMessageChunk = HelperFunctionsCrypto.decryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(rsaBlock), privateKey);
-                    assembledClearMessage = assembledClearMessage + new String(clearMessageChunk, StandardCharsets.UTF_8);
+                    try
+                    {
+                        byte[] clearMessageChunk = HelperFunctionsCrypto.decryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(rsaBlock), privateKey);
+                        assembledClearMessage = assembledClearMessage + new String(clearMessageChunk, StandardCharsets.UTF_8);
+                    }
+                    catch(Exception e)
+                    {
+                        //fehler, wenn rsa entschlüsselung nicht geklappt hat anzeigen:
+                        DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Decryption failed. Check whether you just scanned the right QR code and that it has been created for you! ", Toast.LENGTH_LONG).show());
+                        Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
+                        intent.putExtra("redirection", "DecryptEnterPasswordActivity"); //nach dem Scan des QR codes soll dannach mit dem Inhalt die DecryptEnterPassword Activity aufgerufen werden.
+                        startActivity(intent);
+                        finish();
+
+                    }
                 }
 
                 //display the message
