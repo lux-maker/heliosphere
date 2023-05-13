@@ -139,7 +139,8 @@ public class KeyExchangeShowPublicKeyActivity extends AppCompatActivity {
 
         try {
             //BitMatrix class to encode entered text and set Width & Height
-            BitMatrix matrix = multiFormatWriter.encode(publicKeyMap.get(keyname), BarcodeFormat.QR_CODE, width, width); //weil quadratisch width = height
+            String qrtext = new String("99"+publicKeyMap.get(keyname)); // stelle die Zahl 99 vor den Text als Indikator dafür, dass es sich hierbei um einen public key handelt.
+            BitMatrix matrix = multiFormatWriter.encode(qrtext, BarcodeFormat.QR_CODE, width, width); //weil quadratisch width = height
 
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(matrix);//creating bitmap of code

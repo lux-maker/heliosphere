@@ -98,6 +98,9 @@ public class ScanActivity extends AppCompatActivity {
                 } catch (DoubleScanException e)
                 {
                     ScanActivity.this.runOnUiThread(() -> Toast.makeText(ScanActivity.this, "This QR code was already scanned before", Toast.LENGTH_SHORT).show());
+                } catch (UnexpectedPublicKeyException e)
+                {
+                    ScanActivity.this.runOnUiThread(() -> Toast.makeText(ScanActivity.this, "qr code shows unexpected public key. If you want to scan a public key - go to SCAN KEY", Toast.LENGTH_LONG).show());
                 }
 
                 //update the information text on screen
