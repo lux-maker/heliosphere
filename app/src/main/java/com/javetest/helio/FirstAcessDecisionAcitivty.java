@@ -1,21 +1,27 @@
 package com.javetest.helio;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 import androidx.security.crypto.MasterKeys;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.content.Intent;
 import android.os.Handler;
+import android.Manifest;
 import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
 import java.security.KeyPair;
+import java.util.concurrent.Semaphore;
 
 /**
  * generelle Infos:
@@ -34,21 +40,53 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
 
     String json; //global declaration (within class)
 
+    //initialize handler that repeats the sanity checks every 30 seconds
+    private Handler sanityHandler;
+    private Runnable sanityRunnable;
+    private Semaphore semaphore;
+    int PERMISSION_REQUEST_CODE = 1;
+
+    private static final long DELAY_MS = 1000; // 1 second
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
-        setContentView(R.layout.activity_first_acess_decision_acitivty); //created by default
+        setContentView(R.layout.activity_first_acess_decision_acitivty);
 
-        //perform sanity checks connectivity
-        SanityChecks sanityChecks = new SanityChecks();
-        boolean checksAreOK = sanityChecks.wifi(getApplicationContext(), FirstAcessDecisionAcitivty.this);
+        semaphore = new Semaphore(0);
 
-        if (!checksAreOK)
-        {
-            //close the application
-            finish();
-            return;
+        SanityChecks firstSanityCheck = new SanityChecks();
+        try {
+            firstSanityCheck.checkPermission(getApplicationContext(), FirstAcessDecisionAcitivty.this, "camera");
+        } catch (PermissionException e) {
+            ActivityCompat.requestPermissions(FirstAcessDecisionAcitivty.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
+            try {
+                // Block the execution until the semaphore is released
+                semaphore.acquire();
+            } catch (InterruptedException e2) {
+                e.printStackTrace();
+            }
         }
+
+        //start the handler that performs the sanity checks in the background
+        sanityHandler = new Handler();
+        sanityRunnable = () -> {
+                //perform sanity checks connectivity
+                SanityChecks sanityChecks = new SanityChecks();
+
+                //TODO DIE RAUSKOMMENTIERTEN LINES SIND NUR ZUM DEBUGGEN RAUSKOMMENTIERT!!!!
+                //boolean checksAreOK = sanityChecks.performChecks(getApplicationContext(), FirstAcessDecisionAcitivty.this);
+                boolean checksAreOK = true;
+
+                if (!checksAreOK)
+                {
+                    Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
+                    startActivity(intent);
+                    finish();
+                    return; //to finnish the runnable loop
+                }
+                sanityHandler.postDelayed(sanityRunnable, DELAY_MS);
+        };
+        sanityHandler.postDelayed(sanityRunnable, DELAY_MS);
 
         //load SharedPreferences from memory and check if it already contains a password, otherwise define one
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext()); //enthält neu erzeugten neuen master key, den es braucht um jetzt gleich die verschlüsselten sharedPreferences zu öffnen //MasterKey: Wrapper-class, references a key that's stored in the Android Keystore //context: in order to access the stored preferences
@@ -79,5 +117,19 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
         //run handler
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(r, 2000);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, release the semaphore
+                semaphore.release();
+            } else {
+                finish();
+                semaphore.release();
+            }
+        }
     }
 }

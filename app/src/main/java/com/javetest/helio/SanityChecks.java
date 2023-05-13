@@ -16,6 +16,7 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
+import android.Manifest;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -33,20 +34,60 @@ public class SanityChecks {
      * function checks the availability of wifi, bluetooth and mobile data
      * @return false if any connection method is available, true otherwise
      */
-    public boolean wifi(Context context, Activity activity){
+    public boolean performChecks(Context context, Activity activity){
         try {
-            //isWifiWorking(context);
-            isCellularWorking(context);
-        }/*catch(PermissionException e)
+            isWifiWorking(context, activity);
+            isCellularWorking(context, activity);
+        }catch(PermissionException e)
         {
-            activity.runOnUiThread(() ->Toast.makeText(activity, "Permission must be granted for wifi . . . etc", Toast.LENGTH_SHORT).show());
+            activity.runOnUiThread(() ->Toast.makeText(activity, "Permission must be granted for wifi and cellular connection and camera. Check the Settings and Enable them.", Toast.LENGTH_SHORT).show());
             return false;
-        }*/catch(UnexpectedConnectivityExceptions e)
+        }catch(UnexpectedConnectivityExceptions e)
         {
-            activity.runOnUiThread(() ->Toast.makeText(activity, "Unexpected Connectivity detected. The phone might be compromised", Toast.LENGTH_LONG).show()); //TODO diese nachricht kann verunsichern
+            activity.runOnUiThread(() ->Toast.makeText(activity, "Unexpected Connectivity detected. The phone might be compromised. For security reasons, all data will be erased.", Toast.LENGTH_LONG).show()); //TODO diese nachricht kann verunsichern
+            TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
+            totalAnnilihator.clearAll(context);
             return false;
         }
         return true;
+    }
+
+
+    public void checkAllPermissions(Context context, Activity activity) throws PermissionException
+    {
+        //TODO DIE RAUSKOMMENTIERTEN LINES SIND NUR ZUM DEBUGGEN RAUSKOMMENTIERT!!!!
+        //this.checkPermission(context, activity, "cellular");
+        //this.checkPermission(context, activity, "wifi");
+        this.checkPermission(context, activity, "camera");
+    }
+
+    /**
+     * funciton checks for required permissions and blocks the procedure of the code if the user doesnt grant necessary permissions
+     */
+    public void checkPermission(Context context, Activity activity, String permission) throws PermissionException {
+        int PERMISSION_REQUEST_CODE = 1;
+
+        String permissionString;
+
+        boolean permissionGranted;
+        if (permission.equals("wifi"))
+        {
+            permissionString = Manifest.permission.ACCESS_WIFI_STATE;
+        }
+        else if (permission.equals("cellular"))
+        {
+            permissionString = Manifest.permission.ACCESS_NETWORK_STATE;
+        }
+        else if(permission.equals("camera"))
+        {
+            permissionString = Manifest.permission.CAMERA;
+        }
+        else
+        {throw new IllegalArgumentException("Argument 'permission' must be either 'cellular', 'wifi' or 'camera'");}
+
+        permissionGranted = ContextCompat.checkSelfPermission(activity, permissionString) == PackageManager.PERMISSION_GRANTED;
+
+        if (!permissionGranted) throw new PermissionException("permission not granted");
     }
 
     /**
@@ -54,8 +95,9 @@ public class SanityChecks {
      * @param context context of the application
      * @throws UnexpectedConnectivityExceptions if cellular is connected
      */
-    private void isCellularWorking(Context context) throws UnexpectedConnectivityExceptions
-    {
+    private void isCellularWorking(Context context, Activity activity) throws UnexpectedConnectivityExceptions, PermissionException {
+        this.checkPermission(context, activity, "cellular");
+
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         //check if the phone is connected to cellular
@@ -78,14 +120,10 @@ public class SanityChecks {
     /**
      * @return true if service is disabled, false otherwise
      */
-    private void isWifiWorking(Context context) throws PermissionException, UnexpectedConnectivityExceptions
+    private void isWifiWorking(Context context, Activity activity) throws PermissionException, UnexpectedConnectivityExceptions
     {
-
-        int PERMISSION_REQUEST_CODE = 1;
-        String permission = "android.permission.ACCESS_WIFI_STATE";
-
         //first check if the application has access permission to the wifi
-        this.checkPermission(permission, PERMISSION_REQUEST_CODE, context);
+        this.checkPermission(context, activity, "wifi");
 
         //check if wifi is enabled
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -149,21 +187,4 @@ public class SanityChecks {
         return null;
     }
 
-    /**
-     *
-     * @param permission string that specifies the permission to check
-     */
-    private void checkPermission(String permission, int PERMISSION_REQUEST_CODE, Context context) throws PermissionException {
-        //check if wifi permission is Granted and request it otherwise
-        boolean permissionGranted = context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
-        if (!permissionGranted)
-        {
-            ActivityCompat.requestPermissions(getActivity(context), new String[]{permission}, PERMISSION_REQUEST_CODE);
-        }
-        //check if the permission is granted now
-        if (!(context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED))
-        {
-            throw new PermissionException("permission " + permission + " was not granted");
-        }
-    }
 }
