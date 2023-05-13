@@ -30,7 +30,6 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
     EditText enteredPW;
     Button button;
-    int maxAttempts = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +70,8 @@ public class EnterPasswordActivity extends AppCompatActivity {
                 // compare hashes with overwritten equals ("==") operator
                 if (hashedPasswordInfo.equals(enteredHashedPasswordInfo)) //hashedPasswordInfo = eingegebenes PW // trueHashedPasswordInfo = tatsächliches PW-Passwort
                 {
-                    //reset failedAttempts
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("failedAccessAttempts", "0");
-                    editor.apply();
+                    //reset failedAttempts tp 0
+                    PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), 0);
 
                     //start the main application
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -83,18 +80,15 @@ public class EnterPasswordActivity extends AppCompatActivity {
                 }
                 else
                 { //entered passwort is not the correct password
-                    int failedAttempts;
 
-                    //load the failed attempts from memory
-                    string = settings.getString("failedAccessAttempts", "");
-                    failedAttempts = Integer.parseInt(string);
+                    //load the failed attempts from memory and increment it
+                    int failedAttempts = PasswordAttemptsHandler.getCurrentFailedAttemptsCounter(getApplicationContext());
+                    ++failedAttempts;
 
-                    failedAttempts++;
-                    SharedPreferences.Editor editor = settings.edit();
-                    editor.putString("failedAccessAttempts", Integer.toString(failedAttempts));
-                    editor.apply();
+                    PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), failedAttempts);
 
-                    if (failedAttempts >= this. maxAttempts)
+                    //check if the maximum number of attempts is reached and delete everything if so
+                    if (failedAttempts >= PasswordAttemptsHandler.getMaxAllowedNumOfFailedAttempts())
                     {
                         TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
                         totalAnnilihator.clearAll(getApplicationContext());
@@ -106,7 +100,7 @@ public class EnterPasswordActivity extends AppCompatActivity {
                     }
                     else
                     {
-                        Toast.makeText(EnterPasswordActivity.this, "Wrong password. " + Integer.toString(this.maxAttempts - failedAttempts) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
+                        Toast.makeText(EnterPasswordActivity.this, "Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show();
                     }
                 }
             }
