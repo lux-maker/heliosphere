@@ -43,7 +43,6 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
     //initialize handler that repeats the sanity checks every 30 seconds
     private Handler sanityHandler;
     private Runnable sanityRunnable;
-    private Semaphore semaphore;
     int PERMISSION_REQUEST_CODE = 1;
 
     private static final long DELAY_MS = 1000; // 1 second
@@ -52,30 +51,13 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activity_first_acess_decision_acitivty);
 
-        semaphore = new Semaphore(0);
-
-        SanityChecks firstSanityCheck = new SanityChecks();
-        try {
-            firstSanityCheck.checkPermission(getApplicationContext(), FirstAcessDecisionAcitivty.this, "camera");
-        } catch (PermissionException e) {
-            ActivityCompat.requestPermissions(FirstAcessDecisionAcitivty.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CODE);
-            try {
-                // Block the execution until the semaphore is released
-                semaphore.acquire();
-            } catch (InterruptedException e2) {
-                e.printStackTrace();
-            }
-        }
-
         //start the handler that performs the sanity checks in the background
         sanityHandler = new Handler();
         sanityRunnable = () -> {
                 //perform sanity checks connectivity
                 SanityChecks sanityChecks = new SanityChecks();
 
-                //TODO DIE RAUSKOMMENTIERTEN LINES SIND NUR ZUM DEBUGGEN RAUSKOMMENTIERT!!!!
-                //boolean checksAreOK = sanityChecks.performChecks(getApplicationContext(), FirstAcessDecisionAcitivty.this);
-                boolean checksAreOK = true;
+                boolean checksAreOK = sanityChecks.performChecks(getApplicationContext(), FirstAcessDecisionAcitivty.this);
 
                 if (!checksAreOK)
                 {
@@ -117,19 +99,5 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
         //run handler
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(r, 2000);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, release the semaphore
-                semaphore.release();
-            } else {
-                finish();
-                semaphore.release();
-            }
-        }
     }
 }

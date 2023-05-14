@@ -30,12 +30,15 @@ import java.util.Set;
  */
 public class SanityChecks {
 
+
+    SanityChecks(){};
     /**
      * function checks the availability of wifi, bluetooth and mobile data
      * @return false if any connection method is available, true otherwise
      */
     public boolean performChecks(Context context, Activity activity){
-        try {
+        //TODO ACHTUNG DIE LINES SIND NUR ZUM DEBUGGEN RAUSKOMMENTIERT
+        /*try {
             isWifiWorking(context, activity);
             isCellularWorking(context, activity);
         }catch(PermissionException e)
@@ -44,11 +47,11 @@ public class SanityChecks {
             return false;
         }catch(UnexpectedConnectivityExceptions e)
         {
-            activity.runOnUiThread(() ->Toast.makeText(activity, "Unexpected Connectivity detected. The phone might be compromised. For security reasons, all data will be erased.", Toast.LENGTH_LONG).show()); //TODO diese nachricht kann verunsichern
+            activity.runOnUiThread(() ->Toast.makeText(activity, "Unexpected Connectivity detected. The phone might be compromised. For security reasons, all data has been erased. Shut down application and refer to the manual for further information.", Toast.LENGTH_LONG).show()); //TODO diese nachricht kann verunsichern
             TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
             totalAnnilihator.clearAll(context);
             return false;
-        }
+        }*/
         return true;
     }
 
@@ -118,7 +121,7 @@ public class SanityChecks {
     }
 
     /**
-     * @return true if service is disabled, false otherwise
+     *
      */
     private void isWifiWorking(Context context, Activity activity) throws PermissionException, UnexpectedConnectivityExceptions
     {
@@ -165,7 +168,7 @@ public class SanityChecks {
     }
 
     /**
-     * @return true if service is disabled, false otherwise
+     * transforms a context into an activity
      */
     private Activity getActivity(Context context)
     {
