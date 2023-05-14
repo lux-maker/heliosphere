@@ -138,5 +138,4 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
         }
     };
-
 }

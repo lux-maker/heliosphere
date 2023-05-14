@@ -183,7 +183,6 @@ public class ScanActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
 
-
                 //Auswahl zur Weiterleitung basierend auf der Herkunft des INTENTS
                 if (redirectionInfo.equals("DecryptEnterPasswordActivity")) {
                     //start the DecryptEnterPasswordActivity to start decryption displaying of the message and
@@ -201,5 +200,4 @@ public class ScanActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }

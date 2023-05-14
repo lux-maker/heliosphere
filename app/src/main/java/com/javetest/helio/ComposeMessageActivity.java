@@ -74,4 +74,16 @@ public class ComposeMessageActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        finish();
+    }
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        finish();
+    }
 }
