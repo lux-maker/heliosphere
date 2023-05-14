@@ -18,7 +18,7 @@
             android:id="@+id/publickey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="öffentlicher Schlüssel:"
+            android:text="public key:"
             />
 
         <ImageView
