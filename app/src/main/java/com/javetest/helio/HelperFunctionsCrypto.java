@@ -47,7 +47,7 @@ public class HelperFunctionsCrypto
 
             //generate initialization vector
             SecureRandom sr = new SecureRandom(); //must definitely be a new instance of SecureRandom (don't reuse the instance previously generated to obtain the salt
-            byte[] iv = new byte[16]; // TODO benutzt der algorithmus 16 byte blocks? wird die sicherheit verbessert für groessere bloecke?
+            byte[] iv = new byte[16]; // javax.crypto.Cipher with AES/CBC/PKCS7Padding uses 16 bytes blocks
             sr.nextBytes(iv);
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
 
@@ -84,7 +84,7 @@ public class HelperFunctionsCrypto
             //Decrypt
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            cipher.init(Cipher.DECRYPT_MODE, hashedPasswordInfo.getSecretKeySpec(), ivSpec); //TODO was passiert bei falschem passwort?
+            cipher.init(Cipher.DECRYPT_MODE, hashedPasswordInfo.getSecretKeySpec(), ivSpec);
             decrypted = cipher.doFinal(encrypted);
         }
         catch(Exception e)

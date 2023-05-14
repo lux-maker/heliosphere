@@ -47,7 +47,7 @@ public class SanityChecks {
             return false;
         }catch(UnexpectedConnectivityExceptions e)
         {
-            activity.runOnUiThread(() ->Toast.makeText(activity, "Unexpected Connectivity detected. The phone might be compromised. For security reasons, all data has been erased. Shut down application and refer to the manual for further information.", Toast.LENGTH_LONG).show()); //TODO diese nachricht kann verunsichern
+            activity.runOnUiThread(() ->Toast.makeText(activity, "Unexpected Connectivity detected. The phone might be compromised. For security reasons, all data has been erased. Shut down application and refer to the manual for further information.", Toast.LENGTH_LONG).show());
             TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
             totalAnnilihator.clearAll(context);
             return false;

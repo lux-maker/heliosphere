@@ -72,12 +72,11 @@ public class MessageAssemblyHandler
      */
     public String[] getRSABlocks()
     {
-        // TODO soll diese methode nur funktionieren wenn alle chunks geladen wurden?
+        // this message only works if all blocks are loaded
         if (!this.allChunksLoaded())
         {
-            //TODO exception thrown
-            Log.w("MessageAssemblyHandler.getRSABlocks", "RSA blocks were requested but not all message chunks have been loaded yet");
-            return new String[1];
+            throw new RuntimeException("MessageAssemblyHandler#getRSABlocks() was called before all chunks were loaded");
+            //return new String[1];
         }
 
         // transform the array that holds the message chunks into one single String

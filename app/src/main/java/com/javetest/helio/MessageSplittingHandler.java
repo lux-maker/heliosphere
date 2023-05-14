@@ -17,7 +17,7 @@ public class MessageSplittingHandler
 
 {
     private int maxNumberOfChunks = 13; // maximum number of QR codes
-    private int maxNumberOfChars = 537; // maximum number of characters for one QR Code //TODO for max efficiency understand QR codes and set the precise number of characters to use the full capacity of the reduced QR code
+    private int maxNumberOfChars = 0; // maximum number of characters for one QR Code
     private String message = null; //entire message
     private int requiredNumberOfChunks = -1; // after the message is loaded, this variable will contain the number of chunks needed to send this message
 
@@ -27,21 +27,15 @@ public class MessageSplittingHandler
     /**
      * constructor, overloaded
      * @param maxNumberOfChunks maximum number of Chunks per message
-     * @param maxNumberOfChars maximum number of characters per chunk
+     * @param maxNumberOfChars maximum number of characters per chunk. Only count the characters used to display the message text itself, not the additional 2 characters to add the position number
      */
 
     public MessageSplittingHandler(int maxNumberOfChunks, int maxNumberOfChars)
     {
         //if the numbers are specified, use them
         this.maxNumberOfChunks = maxNumberOfChunks;
-        this.maxNumberOfChars = maxNumberOfChars;
-    };
-
-
-    /**
-     * default constructor
-     */
-    public MessageSplittingHandler() {}; //if the default constructor is called, use the values defined in this class
+        this.maxNumberOfChars = maxNumberOfChars - 2; // -2 to take into account the number oif characters used to display the position number
+    }
 
     /**
      * loads the entire message for further processing and computes the required number of chunks
@@ -54,10 +48,8 @@ public class MessageSplittingHandler
     //if the message is too big (i.e. contains to many characters) the function returns false
 
     {
-        //TODO die Berechnung von requiredNumberOfChunks berücksichtigt nicht die characters die für die positionsnummer verbraucht werden
         this.message = message;
         double length = this.message.length(); //counts characters including white spaces
-
 
         this.requiredNumberOfChunks = (int) Math.ceil(length / (double) this.maxNumberOfChars);
 
@@ -70,9 +62,7 @@ public class MessageSplittingHandler
         return (this.requiredNumberOfChunks <= this.maxNumberOfChunks);
     }
 
-
     /**
-     *
      * @return the number of chunks required to split the message that was previously loaded into the class object
      */
 
@@ -81,7 +71,6 @@ public class MessageSplittingHandler
     {
         return requiredNumberOfChunks;
     }
-
 
     /**
      * splits the previously loaded message into chunks and returns the chunk at position position
@@ -94,8 +83,6 @@ public class MessageSplittingHandler
     // returns a substring of the original message together with the positionNumber
     // position refers to the index: 0 <= position < requiredNumberOfChunks;
     {
-
-
         //check if position is within the possible interval, otherwise return null
         if (position >= this.requiredNumberOfChunks) return null;
 
@@ -110,12 +97,10 @@ public class MessageSplittingHandler
 
 
         if (addPositionNumber == true){
-            //TODO (lux) hier habe ich rumgepfuscht noch schön maxhen
             String m = String.valueOf(positionNumber) + chunkString;
             if (positionNumber < 10)
                 m="0"+m;
             return m;
-            //TODO chunkstring bytes abziehen für postionNumber
         }else {
             return chunkString;
         }
@@ -124,7 +109,6 @@ public class MessageSplittingHandler
 
     private int computeQRPositionNumber(int[] positionTuple)
     {
-        //TODO function not yet checked for errors
         int P = positionTuple[0];
         int p = positionTuple[1];
 

@@ -77,8 +77,8 @@ public class KeyListActivity extends AppCompatActivity {
         //check if keymap contains any keys
         if (publicKeyMapJson.equals(""))
         {
-            // no public keys exists -> since the own public key is added in CreatePasswordActivity, this can actually never happen if everything goes as planned
-            //TODO how to handle this situation? -> catch error and avoid this situation
+            // no public keys exists
+            // this situation can never happen since the requested key is inserted in the firstaccessdecisionacticvity
         }
 
         //if public key map exists in shared preferences, parse the string to a HashMap object
