@@ -19,7 +19,8 @@
 * "Selbstzerstörungsmechanismus" bei mehrmaliger falscher Passworteingabe
 * erneute*r generierung und Austausch der Schlüssel nach bestimmter Zeit / bestimmter Anzahl an gesendeten Nachrihten (eventuell kann schlüssel angehängt werden an nachricht ohne das der nutzer in irgendeiner weise tätig werden muss)
 * Signature für Nachrichten und Schlüssel ( -> Recherche)
-* check bei app start einbauen ob irgendeine art der kommunikation möglich ist (wifi, bluetooth, usb, nfc) -> wenn ja, dann alles löschen und beleidigungn anzeigen
+* die beiden apps (verschlüsselung und messanger) könnten über töne kommunizieren und zb automatisch den nächsten QR code anzeigen wenn gescannt wurde
+
 
 ### Workflow:
 1. passworteingabe: 
