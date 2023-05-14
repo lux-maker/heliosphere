@@ -23,9 +23,9 @@
         android:layout_below="@+id/scanner_view"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="3dp"
         android:text="@string/scan_the_message_code" />
 
     <TextView
@@ -35,7 +35,6 @@
         android:layout_below="@+id/textView6"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:text="@string/total_number_of_qr_codes_n_scanned_number_of_qr_codes" />
