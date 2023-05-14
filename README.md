@@ -13,6 +13,7 @@
 * nach Handys suchen die man verwurschteln kann
 * Manuel schreiben
 * Apps in den Playstore stellen / als APK veröffentlichen
+* domain "increment-justice.org" kaufen
 
 ### Workflow:
 1. passworteingabe: 
