@@ -104,6 +104,11 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
 
                     HashMap<String, String> publicKeyMap = GsonHelper.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
 
+                    //check if keyname is already used:
+                    if (publicKeyMap.containsKey(keyname)){
+                        Toast.makeText(KeyExchangeSavePublicKeyActivty.this, keyname + " is already used. Set another name!", Toast.LENGTH_LONG).show();
+                    }
+
                     //public key zur HashMap hinzufügen:
                     publicKeyMap.put(keyname, publickey);
 

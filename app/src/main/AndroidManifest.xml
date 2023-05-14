@@ -24,7 +24,7 @@ android:exported
     <!--QR-Code Scanner-->
     <uses-permission android:name="android.permission.CAMERA" />
 
-
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- QR-Code Scanner -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -38,9 +38,13 @@ android:exported
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Helio"
-        tools:targetApi="31">
+        tools:targetApi="31" >
 
         <!-- An Activity represents a single screen in an app. -->
+
+        <activity
+            android:name=".KeyExchangeDeleteKeyActivity"
+            android:exported="false" />
         <activity
             android:name=".ComposeMessageActivity"
             android:exported="false" />
@@ -64,16 +68,23 @@ android:exported
             android:exported="false" />
         <activity
             android:name=".FirstAcessDecisionAcitivty"
-            android:exported="true"> <!-- Klasse kann von Außen aufgerufen werden
-            If an activity in your app includes intent filters, set this element to "true" to let other apps start it -->
+            android:exported="true" >
+
+            <!--
+      Klasse kann von Außen aufgerufen werden
+            If an activity in your app includes intent filters, set this element to "true" to let other apps start it
+            -->
             <intent-filter>
-                <!--An Intent is a messaging object you can use to request an action from another app component.
-                The intent-filter specifies the types of intents that an activity, service, or broadcast receiver can respond to.-->
+
+                <!--
+                An Intent is a messaging object you can use to request an action from another app component.
+                The intent-filter specifies the types of intents that an activity, service, or broadcast receiver can respond to.
+                -->
                 <action android:name="android.intent.action.MAIN" />
                 <!-- this activity is the entry point of the application, i.e. when you launch the application, this activity is created. -->
 
                 <category android:name="android.intent.category.LAUNCHER" />
-                <!--It is in the LAUNCHER category, meaning it gets an icon in anything that thinks of itself as a “launcher”, such as the home screen -->
+                <!-- It is in the LAUNCHER category, meaning it gets an icon in anything that thinks of itself as a “launcher”, such as the home screen -->
             </intent-filter>
         </activity>
         <activity
@@ -85,8 +96,9 @@ android:exported
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:launchMode="singleTask"
-            /> <!-- launchmode legt fest, dass die Activity maximal 1 mal im Stack legen kann. Also wenn ein INTENT nicht geschlossen ist und ein neuer reinkommt,
+            android:launchMode="singleTask" />
+
+        <!-- launchmode legt fest, dass die Activity maximal 1 mal im Stack legen kann. Also wenn ein INTENT nicht geschlossen ist und ein neuer reinkommt,
             wird dieser keinen neuen erstellen. Dies ist nötig, weil wir bei Main bei der weiterleitung nicht - wie sonst immer - die aktuelle Activity schließen. -->
     </application>
 
