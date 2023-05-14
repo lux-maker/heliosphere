@@ -45,6 +45,7 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
     int width;
     ImageView imageCode;
 
+
     ArrayAdapter<String> listAdapter;
 
     @Override
@@ -52,7 +53,7 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
         super.onCreate(savedInstanceState); //created by default
         setContentView(R.layout.activtiy_key_exchange_savepublickey); //created by default
 
-        String publickey = getIntent().getStringExtra("encryptedMessage"); //Der Inhalt des QR-Codes wurde angehängt bei dem Intent von der Scan Aktivity
+        publickey = getIntent().getStringExtra("encryptedMessage"); //Der Inhalt des QR-Codes wurde angehängt bei dem Intent von der Scan Aktivity
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); //zurückbutton initialisieren
 
@@ -62,6 +63,14 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
         enteredKeyName = (EditText) findViewById(R.id.keyname); //objekt, was sich auf das erste Textfeld im GUI bezieht, wo der Name eingeben werden soll
 
         this.showQR(publickey); //zeige den gescannten QR nochmal an, zur Überprüfung und Abgleich für den User -> Wurde der richtige QR-Code eingescannt?
+
+        //Indikator Zahl 99 aus dem key nehmen
+        if (!publickey.substring(0,2).equals("99")){
+            Toast.makeText(KeyExchangeSavePublicKeyActivty.this, "the qr code contains no public key", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        }
+        publickey = publickey.substring(2);
 
 
 
@@ -94,6 +103,11 @@ public class KeyExchangeSavePublicKeyActivty extends AppCompatActivity {
                     //if public key map exists in shared preferences, parse the string to a HashMap object
 
                     HashMap<String, String> publicKeyMap = GsonHelper.fromJson(publicKeyMapJson, new TypeToken<HashMap<String, String>>(){}.getType()); //enthält alle public keys jeweils mit dem key namen indiziert
+
+                    //check if keyname is already used:
+                    if (publicKeyMap.containsKey(keyname)){
+                        Toast.makeText(KeyExchangeSavePublicKeyActivty.this, keyname + " is already used. Set another name!", Toast.LENGTH_LONG).show();
+                    }
 
                     //public key zur HashMap hinzufügen:
                     publicKeyMap.put(keyname, publickey);

@@ -1,7 +1,9 @@
 package com.javetest.helio;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -23,7 +25,7 @@ import android.widget.Button;
  */
 public class MainActivity extends AppCompatActivity {
 
-    Button buttonScan, buttonCompose, buttonKeyExchange;
+    Button buttonScan, buttonCompose, buttonKeyExchange, buttonPanic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         buttonScan = (Button) findViewById(R.id.button3); //objekt, was sich auf den "Scan and decrypt message" button aus dem GUI bezieht
         buttonCompose = (Button) findViewById(R.id.button4); //objekt, was sich auf den "Compose and Encrypt message" button aus dem GUI bezieht
         buttonKeyExchange = (Button) findViewById(R.id.button5); //objekt, was sich auf den "scan key" button aus dem GUI bezieht
+        buttonPanic = (Button) findViewById(R.id.button6); //objekt, was sich auf den "panic" button aus dem GUI bezieht
 
         //implement a Callable for a "Scan and decrypt message" button click
         buttonScan.setOnClickListener(new View.OnClickListener()
@@ -71,6 +74,39 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 //finish(); //Wenn wir hier die Activity beenden, hat die Pfeiltaste bei android nichts mehr, wo sie zurück springen könnte und der Pfeil zurück schließt immer die App
                 // So würde man mit der Pfeil zurück taste immer in der Main Activity landen.
+            }
+        });
+
+        buttonPanic.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) //when click: delete everything
+            {
+                //create a alert dialog box to confirm the users decision
+                AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+                alert.setTitle("Panic Button");
+                alert.setMessage("Are you sure you want to delete all private and public keys in this Application? The keys can not be restored and communication must be established from scratch again.");
+                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
+                        totalAnnilihator.clearAll(getApplicationContext());
+                        Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
+                        dialog.dismiss();
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                alert.show();
             }
         });
     }

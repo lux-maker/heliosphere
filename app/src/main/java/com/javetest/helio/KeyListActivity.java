@@ -225,7 +225,6 @@ public class KeyListActivity extends AppCompatActivity {
         });
     }
 
-
     /**
      * erzeugt einen QR Code mit der übergebenen Nachricht und zeigt ihn an
      * @param qrindex Zahl, die anzeigt welcher QR Code anzeiget werden soll

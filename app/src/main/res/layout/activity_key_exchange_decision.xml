@@ -28,7 +28,15 @@
             android:id="@+id/showOwnPublicKey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
             android:text="show own public key"
+            />
+
+        <Button
+            android:id="@+id/deletKey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="delete keys"
             />
 
     </LinearLayout>

@@ -4,10 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.security.crypto.MasterKey;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -55,6 +59,9 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
 
     Dialog dialog;
 
+    String encryptedMessage;
+    String assembledClearMessage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
@@ -89,58 +96,12 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) //when clicked: hash pw, vergleiche Hash-Wert mit App-PW-Hash-Wert. Richtiges PW: entschlüsseln der Nachricht und übergeben an showCustomDialog()
             {
-                //hash entered password
-                String p = enteredPW.getText().toString();
-                HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), p.toCharArray());
 
-                //compare passwords
-                if (hashedPasswordInfo.equals(enteredHashedPasswordInfo))
-                {
-                    //passwords match -> start to decrypt message
-                    Log.i("DecryptEnterPasswordActivity", "passwords match");
+                //auslagern in externen Thread
+                Thread calculationThread = new Thread(pwcheck);
+                calculationThread.start();
+                setContentView(R.layout.activity_first_acess_decision_acitivty); //zeige den lade... screen
 
-                    //decrypt private RSA key
-                    try
-                    {
-                        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-                        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(HelperFunctionsCrypto.decryptBytes(privateKeyEncrypted, p.toCharArray())); //zunächst muss der privtae key mit Base64 entschlüsselt werden
-                        privateKey = keyFactory.generatePrivate(privateKeySpec);
-                    }
-                    catch(Exception e)
-                    {
-                        Log.e("DecryptEnterPasswordActivity", "RSA key decoding failure", e);
-                    }
-
-                    //load encrypted message json from Intent
-                    String encryptedMessage = getIntent().getStringExtra("encryptedMessage");
-
-                    //parse the json string into a String array
-                    
-                    String[] rsaBlocks = GsonHelper.fromJson(encryptedMessage, new TypeToken<String[]>(){}.getType());
-
-                    int i = 0;
-                    for (String rsaBlock : rsaBlocks)
-                    {
-                        Log.i("DecrpytEnterPasswordActivity", "Block " + i + rsaBlock);
-                        i++;
-                    }
-
-                    String assembledClearMessage = new String("");
-
-                    //iterate through all rsa blocks and decrypt them one by one
-                    for (String rsaBlock : rsaBlocks)
-                    {
-                        byte[] clearMessageChunk = HelperFunctionsCrypto.decryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(rsaBlock), privateKey);
-                        assembledClearMessage = assembledClearMessage + new String(clearMessageChunk, StandardCharsets.UTF_8);
-                    }
-
-                    //display the message
-                    showCustomDialog(assembledClearMessage);
-                }
-                else
-                {
-                    Toast.makeText(DecryptEnterPasswordActivity.this, "Wrong password", Toast.LENGTH_SHORT).show();
-                }
             }
         });
     }
@@ -181,4 +142,108 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
             }
         });
     }
+
+    Runnable pwcheck = new Runnable() {
+
+        public void run() {
+
+            //hash entered password
+            String p = enteredPW.getText().toString();
+            HashedPasswordInfo enteredHashedPasswordInfo = HelperFunctionsCrypto.hashPassword(hashedPasswordInfo.getSalt(), p.toCharArray());
+
+            //load encrypted message json from Intent
+            encryptedMessage = getIntent().getStringExtra("encryptedMessage");
+
+            //compare passwords
+            if (hashedPasswordInfo.equals(enteredHashedPasswordInfo))
+            {
+                //reset failedAttempts
+                PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), 0);
+
+                //passwords match -> start to decrypt message
+                Log.i("DecryptEnterPasswordActivity", "passwords match");
+
+                //decrypt private RSA key
+                try
+                {
+                    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                    EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(HelperFunctionsCrypto.decryptBytes(privateKeyEncrypted, p.toCharArray())); //zunächst muss der privtae key mit Base64 entschlüsselt werden
+                    privateKey = keyFactory.generatePrivate(privateKeySpec);
+                }
+                catch(Exception e)
+                {
+                    Log.e("DecryptEnterPasswordActivity", "RSA key decoding failure", e);
+                }
+
+
+                //parse the json string into a String array
+
+                String[] rsaBlocks = GsonHelper.fromJson(encryptedMessage, new TypeToken<String[]>(){}.getType());
+
+                int i = 0;
+                for (String rsaBlock : rsaBlocks)
+                {
+                    Log.i("DecrpytEnterPasswordActivity", "Block " + i + rsaBlock);
+                    i++;
+                }
+
+                assembledClearMessage = "";
+
+                //iterate through all rsa blocks and decrypt them one by one
+                for (String rsaBlock : rsaBlocks)
+                {
+                    try
+                    {
+                        byte[] clearMessageChunk = HelperFunctionsCrypto.decryptWithRSA(HelperFunctionsStringByteEncoding.string2byte(rsaBlock), privateKey);
+                        assembledClearMessage = assembledClearMessage + new String(clearMessageChunk, StandardCharsets.UTF_8);
+                    }
+                    catch(Exception e)
+                    {
+                        //fehler, wenn rsa entschlüsselung nicht geklappt hat anzeigen:
+                        DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Decryption failed. Check whether you just scanned the right QR code and that it has been created for you! ", Toast.LENGTH_LONG).show());
+                        Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
+                        intent.putExtra("redirection", "DecryptEnterPasswordActivity"); //nach dem Scan des QR codes soll dannach mit dem Inhalt die DecryptEnterPassword Activity aufgerufen werden.
+                        startActivity(intent);
+                        finish();
+
+                    }
+                }
+
+                //display the message
+                //lamda Ausdruck, weil das Dialog feld als Teil des GUIs nicht vom externen Thread angesprochen werden kann. Deswegen wird damit der Befehl über den Main Thread ausgeführt.
+                DecryptEnterPasswordActivity.this.runOnUiThread(() -> showCustomDialog(assembledClearMessage));
+            }
+            else
+            {
+                int failedAttempts = PasswordAttemptsHandler.getCurrentFailedAttemptsCounter(getApplicationContext());
+                ++failedAttempts;
+
+                PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), failedAttempts);
+
+                //check if the maximum number if attempts is reached and dekete everything if so
+                if (failedAttempts >= PasswordAttemptsHandler.getMaxAllowedNumOfFailedAttempts())
+                {
+                    TotalAnnilihator totalAnnilihator = new TotalAnnilihator();
+                    totalAnnilihator.clearAll(getApplicationContext());
+
+                    //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
+                    DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show());
+                    
+                    Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
+                DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Wrong password. " + Integer.toString(PasswordAttemptsHandler.getLeftFailedAttempts(getApplicationContext())) + " Attempts left until the application will reset and all keys will be deleted", Toast.LENGTH_LONG).show());
+
+                Intent intent = new Intent(DecryptEnterPasswordActivity.this, DecryptEnterPasswordActivity.class); //starte erneut die selbe Activity zur erneuten PW eingabe
+                intent.putExtra("encryptedMessage", encryptedMessage);
+                startActivity(intent);
+                return;
+
+            }
+
+        }
+    };
 }

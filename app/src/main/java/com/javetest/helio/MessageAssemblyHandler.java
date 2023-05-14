@@ -1,6 +1,8 @@
 package com.javetest.helio;
 
+import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.zxing.common.StringUtils;
 
@@ -23,13 +25,17 @@ public class MessageAssemblyHandler
      * @param messageChunk a concatenation of the position number and the actual message chunk
      * @return true if the laoded messageChunk is the last one to assemble the entire message, otherwise falls
      */
-    public boolean loadMessageChunk(String messageChunk) throws IllegibleScanException, DoubleScanException {
+    public boolean loadMessageChunk(String messageChunk) throws IllegibleScanException, DoubleScanException, UnexpectedPublicKeyException {
 
         if (this.firstChunk) //then this function is called for the first time since the instance of this class was created
         {
             //extract the total number of chunks and initialize the string message chunk array to null
             this.totalNumberOfChunks = extractPositionNumberTuple(messageChunk)[0];
             messageChunks = new String[this.totalNumberOfChunks];
+        }
+
+        if (messageChunk.substring(0,2).equals("99")){
+            throw new UnexpectedPublicKeyException("unexpected PublicKey scan");
         }
 
         // extract the current positionNumbers

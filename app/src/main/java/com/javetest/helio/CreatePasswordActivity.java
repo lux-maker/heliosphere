@@ -39,6 +39,8 @@ public class CreatePasswordActivity extends AppCompatActivity {
     private EditText password, passwordRepeat;
     Button button;
 
+    String enteredPW;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
@@ -55,7 +57,7 @@ public class CreatePasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) //when "CONFIRM" button clicked: 1. Schaue, ob etwas eingeben wurde 2.
             {
-                String enteredPW = password.getText().toString();
+                enteredPW = password.getText().toString();
                 String enteredPWRepeat = passwordRepeat.getText().toString();
 
                 if(enteredPW.equals("") || enteredPWRepeat.equals(""))
@@ -69,40 +71,11 @@ public class CreatePasswordActivity extends AppCompatActivity {
 
                     if (enteredPW.equals(enteredPWRepeat)) // update the new password in the preferences
                     {
-                        // the two passwords are equal -> generate shared preferences and store password
-                        MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
-                        SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
-                        SharedPreferences.Editor editor = settings.edit();
+                        //auslagern in externen Thread
+                        Thread calculationThread = new Thread(setpw);
+                        calculationThread.start();
+                        setContentView(R.layout.activity_first_acess_decision_acitivty); //show lade... screen
 
-                        // now hash the password and save it
-                        HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(enteredPW.toCharArray());
-
-                        //serialize hashed password object as json and store it in settings
-                        //the serialization is done within the GsonHelper class (static member functions)
-                        editor.putString("hashedPWInfo", GsonHelper.HashedPWInfo2String(hashedPasswordInfo)); //schreibe das Hash-Wert des PWs unter hashedPWInfo in die Datei AccessKey in den sharedPreferences
-
-                        //generate RSA key pair; the private key gets encrypted with the app password
-                        KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
-                        HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), enteredPW.toCharArray());
-
-                        // instantiate new hashMap to store the public keys that are potentially scanned by the user later adn store the own public key in it by default
-                        HashMap<String,String> publicKeyMap = new HashMap<String,String>();
-                        publicKeyMap.put("own key", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
-
-                        String publicKeyMapJson = GsonHelper.toJson(publicKeyMap); //serialize public key as json
-                        editor.putString("publicKeyMap", publicKeyMapJson); //and store it in settings in publicKeyMap
-
-                        //serialize encrypted/encoded keys and store it in settings as well
-                        String jsonPrivate = GsonHelper.toJson(privateKeyEncrypted);
-                        editor.putString("RSAPrivate", jsonPrivate); //privater Schlüssel verschlüsselt mit App-PW
-
-                        // apply changes to shared preferences
-                        editor.apply();
-
-                        //start the main application
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(intent);
-                        finish();
                     }
                     else //passwords do not match -> pop up message
                     {
@@ -112,4 +85,49 @@ public class CreatePasswordActivity extends AppCompatActivity {
             }
         });
     }
+
+    Runnable setpw = new Runnable(){
+
+        public void run() {
+
+            // the two passwords are equal -> generate shared preferences and store password
+            MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext());
+            SharedPreferences settings = EncryptedSharedPreferencesHandler.getESP(getApplicationContext(), masterKey, "keys");
+            SharedPreferences.Editor editor = settings.edit();
+
+            // now hash the password and save it
+            HashedPasswordInfo hashedPasswordInfo = HelperFunctionsCrypto.hashPassword(enteredPW.toCharArray());
+
+            //serialize hashed password object as json and store it in settings
+            //the serialization is done within the GsonHelper class (static member functions)
+            editor.putString("hashedPWInfo", GsonHelper.HashedPWInfo2String(hashedPasswordInfo)); //schreibe das Hash-Wert des PWs unter hashedPWInfo in die Datei AccessKey in den sharedPreferences
+
+            //generate RSA key pair; the private key gets encrypted with the app password
+            KeyPair keyPair = HelperFunctionsCrypto.generateRSAKeyPair();
+            HashMap<String, byte[]> privateKeyEncrypted = HelperFunctionsCrypto.encryptBytes(keyPair.getPrivate().getEncoded(), enteredPW.toCharArray());
+
+            // instantiate new hashMap to store the public keys that are potentially scanned by the user later adn store the own public key in it by default
+            HashMap<String,String> publicKeyMap = new HashMap<String,String>();
+            publicKeyMap.put("own key", HelperFunctionsStringByteEncoding.byte2string(keyPair.getPublic().getEncoded()));
+
+            String publicKeyMapJson = GsonHelper.toJson(publicKeyMap); //serialize public key as json
+            editor.putString("publicKeyMap", publicKeyMapJson); //and store it in settings in publicKeyMap
+
+            //serialize encrypted/encoded keys and store it in settings as well
+            String jsonPrivate = GsonHelper.toJson(privateKeyEncrypted);
+            editor.putString("RSAPrivate", jsonPrivate); //privater Schlüssel verschlüsselt mit App-PW
+
+            //store the number of failed attempts in memory
+            PasswordAttemptsHandler.setCurrentFailedAttemptsCounter(getApplicationContext(), 0);
+
+            // apply changes to shared preferences
+            editor.apply();
+
+            //start the main application
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            finish();
+
+        }
+    };
 }
