@@ -73,20 +73,19 @@ public class SanityChecks {
         String permissionString;
 
         boolean permissionGranted;
-        if (permission.equals("wifi"))
-        {
-            permissionString = Manifest.permission.ACCESS_WIFI_STATE;
+        switch (permission) {
+            case "wifi":
+                permissionString = Manifest.permission.ACCESS_WIFI_STATE;
+                break;
+            case "cellular":
+                permissionString = Manifest.permission.ACCESS_NETWORK_STATE;
+                break;
+            case "camera":
+                permissionString = Manifest.permission.CAMERA;
+                break;
+            default:
+                throw new IllegalArgumentException("Argument 'permission' must be either 'cellular', 'wifi' or 'camera'");
         }
-        else if (permission.equals("cellular"))
-        {
-            permissionString = Manifest.permission.ACCESS_NETWORK_STATE;
-        }
-        else if(permission.equals("camera"))
-        {
-            permissionString = Manifest.permission.CAMERA;
-        }
-        else
-        {throw new IllegalArgumentException("Argument 'permission' must be either 'cellular', 'wifi' or 'camera'");}
 
         permissionGranted = ContextCompat.checkSelfPermission(activity, permissionString) == PackageManager.PERMISSION_GRANTED;
 
