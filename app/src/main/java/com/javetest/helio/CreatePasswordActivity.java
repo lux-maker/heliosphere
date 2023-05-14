@@ -16,6 +16,8 @@ import androidx.security.crypto.MasterKey;
 import androidx.security.crypto.MasterKeys;
 
 import com.google.gson.Gson;
+import com.nulabinc.zxcvbn.Strength;
+import com.nulabinc.zxcvbn.Zxcvbn;
 
 
 import java.io.IOException;
@@ -67,15 +69,24 @@ public class CreatePasswordActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    //TODO checken ob die passwörter die geforderte sicherheit aufweisen? Länge des numerischen Passwortes?
 
                     if (enteredPW.equals(enteredPWRepeat)) // update the new password in the preferences
                     {
-                        //auslagern in externen Thread
-                        Thread calculationThread = new Thread(setpw);
-                        calculationThread.start();
-                        setContentView(R.layout.activity_first_acess_decision_acitivty); //show lade... screen
+                        //check password strength
+                        Zxcvbn zxcvbn = new Zxcvbn();
+                        Strength strength = zxcvbn.measure(enteredPW);
 
+                        if (strength.getScore() < 4)
+                        {
+                            //password is too weak
+                            Toast.makeText(CreatePasswordActivity.this, "Password is too weak. Try using longer combinations, upper and lower case letters, numbers and special characters like '['  or '@'.", Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            //auslagern in externen Thread
+                            Thread calculationThread = new Thread(setpw);
+                            calculationThread.start();
+                            setContentView(R.layout.activity_first_acess_decision_acitivty); //show lade... screen
+                        }
                     }
                     else //passwords do not match -> pop up message
                     {
