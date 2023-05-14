@@ -1,19 +1,27 @@
 package com.javetest.helio;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
 import androidx.security.crypto.MasterKeys;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.content.Intent;
 import android.os.Handler;
+import android.Manifest;
+import android.util.Log;
+
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
 
 import java.security.KeyPair;
+import java.util.concurrent.Semaphore;
 
 /**
  * generelle Infos:
@@ -32,10 +40,35 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
 
     String json; //global declaration (within class)
 
+    //initialize handler that repeats the sanity checks every 30 seconds
+    private Handler sanityHandler;
+    private Runnable sanityRunnable;
+    int PERMISSION_REQUEST_CODE = 1;
+
+    private static final long DELAY_MS = 1000; // 1 second
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
-        setContentView(R.layout.activity_first_acess_decision_acitivty); //created by default
+        setContentView(R.layout.activity_first_acess_decision_acitivty);
+
+        //start the handler that performs the sanity checks in the background
+        sanityHandler = new Handler();
+        sanityRunnable = () -> {
+                //perform sanity checks connectivity
+                SanityChecks sanityChecks = new SanityChecks();
+
+                boolean checksAreOK = sanityChecks.performChecks(getApplicationContext(), FirstAcessDecisionAcitivty.this);
+
+                if (!checksAreOK)
+                {
+                    Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
+                    startActivity(intent);
+                    finish();
+                    return; //to finnish the runnable loop
+                }
+                sanityHandler.postDelayed(sanityRunnable, DELAY_MS);
+        };
+        sanityHandler.postDelayed(sanityRunnable, DELAY_MS);
 
         //load SharedPreferences from memory and check if it already contains a password, otherwise define one
         MasterKey masterKey = EncryptedSharedPreferencesHandler.getMasterKey(getApplicationContext()); //enthält neu erzeugten neuen master key, den es braucht um jetzt gleich die verschlüsselten sharedPreferences zu öffnen //MasterKey: Wrapper-class, references a key that's stored in the Android Keystore //context: in order to access the stored preferences
@@ -66,6 +99,5 @@ public class FirstAcessDecisionAcitivty extends AppCompatActivity {
         //run handler
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(r, 2000);
-
     }
 }

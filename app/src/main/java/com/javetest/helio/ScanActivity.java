@@ -4,16 +4,21 @@ import static com.google.android.material.internal.ContextUtils.getActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
 
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
@@ -47,7 +52,6 @@ public class ScanActivity extends AppCompatActivity {
     TextView textView;
     Intent intent;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); //created by default
@@ -69,8 +73,19 @@ public class ScanActivity extends AppCompatActivity {
         CodeScannerView scannerView = findViewById(R.id.scanner_view); //Objekt bezieht sich auf com.budiyev.android.codescanner.CodeScannerView aus dem GUI
         mCodeScanner = new CodeScanner(this, scannerView);
 
+        //check if camera permissions are granted
+        if (!(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED))
+        {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
+        }
+
         //override the callback that is executed when a QR code is scanned and decoded with a lambda function
         mCodeScanner.setDecodeCallback(result -> {
+
+            //give feedback to the user by vibrating
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if(vibrator.hasVibrator()) vibrator.vibrate(200); //vibrate for 200ms
+
 
             //check out the current activation to be able to run tasks on the UI thread later (rendering and view modifiations)
             //Activity currentActivity = (Activity) (getApplicationContext());
@@ -137,6 +152,17 @@ public class ScanActivity extends AppCompatActivity {
                 mCodeScanner.startPreview();
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED)
+        {
+            //permission not granted
+            Toast.makeText(ScanActivity.this, "The application must be granted access to the camera to be operational. Grant access in system settings.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
