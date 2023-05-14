@@ -175,7 +175,6 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                     Log.e("DecryptEnterPasswordActivity", "RSA key decoding failure", e);
                 }
 
-
                 //parse the json string into a String array
 
                 String[] rsaBlocks = GsonHelper.fromJson(encryptedMessage, new TypeToken<String[]>(){}.getType());
@@ -228,7 +227,7 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
 
                     //lamda Ausdruck, weil wir sonst nicht vom externen Thread auf das GUI zugegriffen werden kann. Das kann nur über den Main Thread geändert werden.
                     DecryptEnterPasswordActivity.this.runOnUiThread(() -> Toast.makeText(DecryptEnterPasswordActivity.this,"Maximum amount of failed Attempts reached. The application was reset. All keys were deleted.", Toast.LENGTH_LONG).show());
-                    
+
                     Intent intent = new Intent(getApplicationContext(), FirstAcessDecisionAcitivty.class);
                     startActivity(intent);
                     finish();
@@ -241,9 +240,19 @@ public class DecryptEnterPasswordActivity extends AppCompatActivity {
                 intent.putExtra("encryptedMessage", encryptedMessage);
                 startActivity(intent);
                 return;
-
             }
-
         }
     };
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        finish();
+    }
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        finish();
+    }
 }
