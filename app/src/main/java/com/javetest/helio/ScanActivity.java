@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -80,6 +81,11 @@ public class ScanActivity extends AppCompatActivity {
 
         //override the callback that is executed when a QR code is scanned and decoded with a lambda function
         mCodeScanner.setDecodeCallback(result -> {
+
+            //give feedback to the user by vibrating
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if(vibrator.hasVibrator()) vibrator.vibrate(200); //vibrate for 200ms
+
 
             //check out the current activation to be able to run tasks on the UI thread later (rendering and view modifiations)
             //Activity currentActivity = (Activity) (getApplicationContext());
