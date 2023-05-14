@@ -73,51 +73,53 @@ public class KeyExchangeDeleteKeyActivity extends AppCompatActivity {
                 String publicKeyString = publicKeyMap.get(itemName);
 
                 //abfrage ob es sich um den own key handelt:
+                if (itemName.equals("own key")){
 
+                    Toast.makeText(KeyExchangeDeleteKeyActivity.this, "Own key cannot be deleted", Toast.LENGTH_SHORT).show();
+                } else {
 
-                //frage ab, ob der key wirklich gelöscht werden soll:
-                //create a alert dialog box to confirm the users decision
-                AlertDialog.Builder alert = new AlertDialog.Builder(KeyExchangeDeleteKeyActivity.this);
-                alert.setTitle("Delete Key:" + itemName);
-                alert.setMessage("Are you sure you want to delete " + itemName + "? The key can not be restored and communication must be established from scratch again.");
-                alert.setPositiveButton("Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
+                    //frage ab, ob der key wirklich gelöscht werden soll:
+                    //create a alert dialog box to confirm the users decision
+                    AlertDialog.Builder alert = new AlertDialog.Builder(KeyExchangeDeleteKeyActivity.this);
+                    alert.setTitle("Delete Key:" + itemName);
+                    alert.setMessage("Are you sure you want to delete " + itemName + "? The key can not be restored and communication must be established from scratch again.");
+                    alert.setPositiveButton("Yes", new DialogInterface.OnClickListener()
                     {
-                        publicKeyMap.remove(itemName);
-                        publicKeyMapJson = GsonHelper.toJson(publicKeyMap); //serialize public key as json
-                        editor.putString("publicKeyMap", publicKeyMapJson); //and store it in settings in publicKeyMap
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            publicKeyMap.remove(itemName);
+                            publicKeyMapJson = GsonHelper.toJson(publicKeyMap); //serialize public key as json
+                            editor.putString("publicKeyMap", publicKeyMapJson); //and store it in settings in publicKeyMap
 
-                        // apply changes to shared preferences
-                        editor.apply();
+                            // apply changes to shared preferences
+                            editor.apply();
 
-                        Toast.makeText(KeyExchangeDeleteKeyActivity.this, itemName + " deleted and removed", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(KeyExchangeDeleteKeyActivity.this, itemName + " deleted and removed", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(getApplicationContext(), KeyExchangeDeleteKeyActivity.class);
-                        dialog.dismiss();
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            Intent intent = new Intent(getApplicationContext(), KeyExchangeDeleteKeyActivity.class);
+                            dialog.dismiss();
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                    alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //mache nichts
-                        Toast.makeText(KeyExchangeDeleteKeyActivity.this, "No keys deleted", Toast.LENGTH_SHORT).show();
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //mache nichts
+                            Toast.makeText(KeyExchangeDeleteKeyActivity.this, "No keys deleted", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(getApplicationContext(), KeyExchangeDeleteKeyActivity.class);
-                        dialog.dismiss();
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                alert.show();
+                            Intent intent = new Intent(getApplicationContext(), KeyExchangeDeleteKeyActivity.class);
+                            dialog.dismiss();
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+                    alert.show();
+                }
             }
         });
-
-
     }
 
 
